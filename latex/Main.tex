@@ -1,13 +1,165 @@
 \documentclass[thesis.tex]{subfiles}
 \begin{document}
 
-\chapter{Main}\label{chap:basics}
+\chapter{SpeedCam}\label{chap:basics}
 
 The REAL stuff. All your precious work written down for the benefit of humanity.
 
 \section{Overview}
 
-\section{The meaty Stuff, part 1}
+\section{Metrics}
+The following part lists the metrics which have been collected.
+
+Possible metrics are:
+
+\begin{easylist}
+    \MyListProperties
+    # CPU consumption
+    # Memory consumption
+    # avg. Bandwidth usage (1 sec)
+    # avg. Sent packages (1 sec)
+    # avg. Received packages (1 sec)  
+    # avg. package loss (1 sec)  
+    # Requests to path server
+    # Bandwidth usage for transmitting packages (hops)
+    # Created connections (changes in the topology)
+    # Bandwidth capacity inside the network (sum of connections)
+\end{easylist} 
+
+\section{Detection scheme}
+This part will contain the description about the detection scheme. It will outline how to detect a greedy user and provide a detailed overview of its functionality.
+
+\subsection{Basic idea}
+The task of the detection scheme is to identify a greedy AS inside an ISD using multi-path connections. 
+
+A central unit inside the ISD will be able to start an inspection and inspect ASes bandwidth usage. This is done by a core AS, which is called \textbf{inspector}. 
+
+The inspector will randomly choose ASes inside its ISD to measure the bandwidth. The chosen ASes are called \textbf{speed cam}. They will collect for a certain amount of time the metrics and aggregate them over time. When the duration is to end, the speed cams will sent the data to the inspector.
+
+When the inspector received the data of all speed cams, he will decide, which user is greedy and who are not. The decision process will be explained in later parts of this work.
+
+
+\begin{figure}[h]
+    \begin{subfigure}{.32\linewidth}
+        \centering
+        \begin{tikzpicture}
+        \node (inspector) at (0, 0.5) {Inspector};
+        \node[shape=rectangle,draw=red] (1-1) at (0,0) {1-1 (core)};
+        \node[shape=rectangle,draw=cyan] (1-2) at (0,-2) {1-2};
+        \node[shape=rectangle,draw=black] (1-3) at (0,-1) {1-3};
+        \node[shape=rectangle,draw=cyan] (1-4) at (-1.5,-1) {1-4};
+        \node[shape=rectangle,draw=black] (1-5) at (1.5,-1) {1-5};
+        \node[shape=rectangle,draw=black] (1-6) at (0,-3) {1-6};
+        \node[shape=rectangle,draw=cyan] (1-7) at (-1.5,-4) {1-7};
+        \node[shape=rectangle,draw=black] (1-8) at (1.5,-2) {1-8};
+        \node[shape=rectangle,draw=black] (1-15) at (0,-4) {1-15};
+        \node[shape=rectangle,draw=black] (1-16) at (1.5,-3) {1-16};
+        \node (speedcam) at (-1.5, -2.5) [text width=1cm]{Speed cams};
+        
+        
+        \path[-]	
+        (1-1) edge (1-4)
+        (1-1) edge (1-3)
+        (1-1) edge (1-5)
+        (1-1) edge[bend left=50] (1-2)
+        (1-2) edge (1-6)
+        (1-3) edge (1-2)
+        (1-5) edge (1-8)
+        (1-5) edge (1-6)
+        (1-6) edge (1-7)
+        (1-6) edge (1-15)
+        (1-8) edge (1-16)
+        ;
+        
+        \path[->]
+        (speedcam) edge (1-4)
+        (speedcam) edge (1-2)
+        (speedcam) edge (1-7);
+        \end{tikzpicture}
+        \caption{Inspector choose ASes for speed cams}
+        \label{fig:main:exampleDetectionSchemeSub1}
+    \end{subfigure}%
+    \begin{subfigure}{.32\linewidth}
+        \centering
+        \begin{tikzpicture}
+        \node (inspector) at (0, 0.5) {Inspector};
+        \node[shape=rectangle,draw=red] (1-1) at (0,0) {1-1 (core)};
+        \node[shape=rectangle,draw=black] (1-2) at (0,-2) {1-2};
+        \node[shape=rectangle,draw=black] (1-3) at (0,-1) {1-3};
+        \node[shape=rectangle,draw=black] (1-4) at (-1.5,-1) {1-4};
+        \node[shape=rectangle,draw=black] (1-5) at (1.5,-1) {1-5};
+        \node[shape=rectangle,draw=black] (1-6) at (0,-3) {1-6};
+        \node[shape=rectangle,draw=black] (1-7) at (-1.5,-4) {1-7};
+        \node[shape=rectangle,draw=black] (1-8) at (1.5,-2) {1-8};
+        \node[shape=rectangle,draw=black] (1-15) at (0,-4) {1-15};
+        \node[shape=rectangle,draw=black] (1-16) at (1.5,-3) {1-16};
+        \node (data) at (-1.5, -2.5) [text width=1cm]{Data};
+        
+        \path[-]		
+        (1-1) edge node[shape=circle,draw=cyan, at end] (data1) {} (1-4)    
+        (1-1) edge (1-3)
+        (1-1) edge (1-5)
+        (1-1) edge[bend left=50] node[shape=circle,draw=cyan, at end] (data2) {} (1-2)
+        (1-2) edge node[shape=circle,draw=cyan, at start] (data3) {} (1-6)
+        (1-3) edge node[shape=circle,draw=cyan, at end] (data4) {} (1-2)
+        (1-5) edge (1-8)
+        (1-5) edge (1-6)
+        (1-6) edge node[shape=circle,draw=cyan, at end] (data5) {} (1-7)
+        (1-6) edge (1-15)
+        (1-8) edge (1-16)
+        ;
+        \path[-]
+        (data1.south east) edge[bend right=10] (data.east)
+        (data2.north west) edge[bend right=80] (data.east)
+        (data3.south west) edge (data.east)
+        (data4.north west) edge[bend right=45] (data.east)
+        (data5) edge (data.east)
+        ;
+        \end{tikzpicture}
+        \caption{Speed cams collect data about traffic}
+        \label{fig:main:exampleDetectionSchemeSub2}
+    \end{subfigure}%
+    \begin{subfigure}{0.32\linewidth}
+        \centering
+        \begin{tikzpicture}
+        \node (inspector) at (0, 0.5) {Inspector};
+        \node[shape=rectangle,draw=red] (1-1) at (0,0) {1-1 (core)};
+        \node[shape=rectangle,draw=black] (1-2) at (0,-2) {1-2};
+        \node[shape=rectangle,draw=black] (1-3) at (0,-1) {1-3};
+        \node[shape=rectangle,draw=black] (1-4) at (-1.5,-1) {1-4};
+        \node[shape=rectangle,draw=black] (1-5) at (1.5,-1) {1-5};
+        \node[shape=rectangle,draw=black] (1-6) at (0,-3) {1-6};
+        \node[shape=rectangle,draw=black] (1-7) at (-1.5,-4) {1-7};
+        \node[shape=rectangle,draw=black] (1-8) at (1.5,-2) {1-8};
+        \node[shape=rectangle,draw=black] (1-15) at (0,-4) {1-15};
+        \node[shape=rectangle,draw=black] (1-16) at (1.5,-3) {1-16};
+        \node (data) at (-1.5, -2.5) [text width=1cm]{Data};
+        
+        \path[-]	
+        (1-1) edge (1-4) 
+        (1-1) edge (1-3)
+        (1-1) edge (1-5)
+        (1-1) edge[bend left=50] (1-2)
+        (1-2) edge (1-6)
+        (1-3) edge (1-2)
+        (1-5) edge (1-8)
+        (1-5) edge (1-6)
+        (1-6) edge (1-7)
+        (1-6) edge (1-15)
+        (1-8) edge (1-16)
+        ;
+        
+        \path[->]
+        (data.north west) edge[bend left=45] (1-1.west);
+        \end{tikzpicture}
+        \caption{Speed cams report data to inspector}
+        \label{fig:main:exampleDetectionSchemeSub3}
+    \end{subfigure}
+    \caption{Example of detection scheme}
+    \label{fig:main:exampleDetectionScheme}
+\end{figure}
+
+The \Cref{fig:main:exampleDetectionScheme} shows an example for the detection scheme. It shows a the ISD 1 and its ASes. In \Cref{fig:main:exampleDetectionSchemeSub1} is the process of choosing speed cams visualized. The ASes 1-2, 1-4 and 1-7 are randomly chosen and now called speed cams. For a certain amount of time, the speed cams collect data about traffic through their border router. This can be seen in \Cref{fig:main:exampleDetectionSchemeSub2}. After the collection is finished, the data is sent to the inspector, which is shown by \Cref{fig:main:exampleDetectionSchemeSub3}.
 
 \subsection{The meaty Stuff, part 1.1}
 

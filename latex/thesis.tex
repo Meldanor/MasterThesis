@@ -39,6 +39,7 @@
 
 % Easy use of list (alternative to itemize)
 \usepackage[sharp]{easylist}
+\newcommand{\MyListProperties}{\ListProperties(Hide=100, Hang=true, Progressive=4ex, Space=0.0ex, Space3=-0.5ex, Space*=-0.5ex, Style*=$\bullet\,$,Style2*=$\circ$,Style3*=$\circ$)}
 
 % Links/URLs in proper colors
 \usepackage{hyperref}
@@ -94,6 +95,7 @@
 % Image size for half page
 \newcommand{\halfpageimage}{0.496\textwidth}
 
+\usepackage{cleveref}
 \begin{document}
 
 % Undef subfilebib for main file, so there is only one bibliography when compiling the whole thesis.
