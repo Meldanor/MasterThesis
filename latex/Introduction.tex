@@ -7,17 +7,45 @@
 % An image right here at the top can look really cool!
 
 \section{Introduction}
-Convey a feeling and background of the field. Pretend nobody read the abstract, start from zero.
 
 \section{Motivation}
-Describe why does this thesis exist. Oh you want to pass your Bachelor/Master? Yeah, that's not what I've meant.
+
+\begin{easylist}
+    \MyListProperties
+    # Resources in networks (bandwidth, CPU time and memory usage)
+    # Expected growth of bandwidth (D.IX? in Frankfurt) -> Importance of fair system
+    ## \textit{Figure of growth}
+    ## \textit{Figure of expected bandwidth usage in a few years}
+    ## Source for currently unused bandwidth (if there is some source)
+    # Multi-Path in SCION as a solution for bandwidth usage
+    # Problem with a greedy user can cause (congestions)
+\end{easylist}
 
 \section{Goals} \label{bib:goals}
-What are you trying to achieve.
+     \begin{easylist}
+        \MyListProperties        
+        # The thesis' main goal is to achieve a fair usage of bandwidth at multi-path communication in SCIONLab. The proposed solution must not use more resources (computation time, bandwidth) as it will gains through using the bandwidth more efficiently. A solution with a 100\% accuracy is useless if it uses too much resources. Because of this, the goals must be always reach a trade-off between efficiency (resource usage) and effects (resource gain).        
+        # The first goal to verify is, that the proposed solution has to detect a greedy user at least at 85\% with a minimal performance impact of 5\%.         
+        # The solution must also provide parameters to increase the accuracy of the detection rate, even when the performance impact will be higher. This is important for an adaption in systems who requires an higher detection.
+        # It is also a goal to create a scalable solution working with topologies with up to 100 ASes. This goal will be achieved by minimizing the impact on network traffic for necessary protocols.        
+        # The solution must be general enough for other network types with multi-path capability.        
+        # Based on the previous goal, this thesis has to provide an implementation for SCION which can be merged and used inside SCIONLab.
+        # It is not a goal to clarify whether a punishment can be legally enforced or not. This thesis will only provide a mechanism to identify and punish a greedy user, but does not worry about if this will violates a contract between an user and its internet provider.
+    \end{easylist}
 
 \section{Main Contribution}
-Describe all the novelties in your work.
-
+    \begin{easylist}
+        \MyListProperties
+        # SpeedCam approach
+        ## Measuring the used bandwidth
+        ### Use a probabilistic approach 
+        ## Regulate  / Punish greedy user
+        
+        # Implementation in SCIONLab
+        ## Also usable in SCION
+        ## Also usable in other networks
+        ### Examples: Intranets 
+    \end{easylist}
 \section{Thesis Outline}
 Describe the structure of this document.
 
