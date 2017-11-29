@@ -161,6 +161,45 @@ When the inspector received the data of all speed cams, he will decide, which us
 
 The \Cref{fig:main:exampleDetectionScheme} shows an example for the detection scheme. It shows a the ISD 1 and its ASes. In \Cref{fig:main:exampleDetectionSchemeSub1} is the process of choosing speed cams visualized. The ASes 1-2, 1-4 and 1-7 are randomly chosen and now called speed cams. For a certain amount of time, the speed cams collect data about traffic through their border router. This can be seen in \Cref{fig:main:exampleDetectionSchemeSub2}. After the collection is finished, the data is sent to the inspector, which is shown by \Cref{fig:main:exampleDetectionSchemeSub3}.
 
+The following section will explain the details about the selection, the data to collect and to classify the user.
+
+\subsection{Selection process}
+This part will explain the process how ASes are selected to be speed cams.
+
+It is obvious that the inspector has to randomly pick ASes at random time slots. If the process were deterministic, then malicious ASes could exploit it. They would use fewer resources at the time of the inspection and so avoid punishment.
+
+It is also important to only inspect, when it is necessary. By limiting the monitoring, fewer resources as the bandwidth or computation time are utilized. One possibility is to start the inspection when a bandwidth is exceeded inside the ISD. This happens when the total currently used bandwidth of a connection is higher than the capacity. Using the method can be too late to avoid the congestion, but it would limit the resource usage. 
+It is also important to have a cooldown time between inspection, even if the congestion cannot be solved by punishing greedy user. Otherwise the inspection will be done without an effect.
+
+\todo{Add example graph for that}
+
+Another approach is to prevent such data jams by randomly monitoring ASes throughout the day. This would be done without the urgent need of a bandwidth exceed. This will waste resources but can identify a greedy user before he can disturb other user. 
+
+A mix of both approaches will be investigated by this work. The first investigation will be shorter than the second because of the urgency to identify the source of the congestion. The second one can be done over a longer period for a more accurate result.
+
+\subsection{Data and metrics}
+This part will describe the metrics which are measured and the resulting data which is collected by the inspection.
+
+Each speed cam will collect the same data over the same time period and sent them to the inspector. The data will be aggregated over time, if possible, to minimize the memory consumption of the ASes.
+
+\begin{easylist}
+    \MyListProperties
+    # avg. bandwidth usage per AS
+    # avg. sent packages per AS
+    # avg. received packages per AS
+    # requests to path server 
+\end{easylist}
+
+The requests to the path server can be used to find the different path an AS uses for its transmission.
+
+\todo{Use work of ? with his buckets}
+
+\subsection{Classify user}
+This part will explain how to distinguish between a greedy and a normal user. This is important to identify a source for a data congestion and the stop it.
+
+A greedy user uses way more bandwidth than other user. 
+
+\todo{What is the different between a greedy and a normal user?}
 \subsection{The meaty Stuff, part 1.1}
 
 \section{Oh look! Equations!}
