@@ -177,11 +177,20 @@ Another approach is to prevent such data jams by randomly monitoring ASes throug
 
 A mix of both approaches will be investigated by this work. The first investigation will be shorter than the second because of the urgency to identify the source of the congestion. The second one can be done over a longer period for a more accurate result.
 
+\todo{Add obvious impossible approaches: ALways monitor, never monitor}
+
+The necessary amount of speed cams inside a ISD is one interesting question to answer. Fewer speed cams result in a lower resource impact, which is good. But it will also result in a lower precision, which can lead to wrong accusations or missing greedy users.
+
+A pure random amount of ASes is a intuitive answer, but in big ISD with hundreds of ASes only one speed cam will be not enough to measure multi-path bandwidth. An improved version is that the amount is between a certain percentage of the total ASes and the total number itself.
+
+\todo{This should be answered inside experiments or maybe in further works?}
+
 \subsection{Data and metrics}
 This part will describe the metrics which are measured and the resulting data which is collected by the inspection.
 
 Each speed cam will collect the same data over the same time period and sent them to the inspector. The data will be aggregated over time, if possible, to minimize the memory consumption of the ASes.
 
+The following list show this metrics:
 \begin{easylist}
     \MyListProperties
     # avg. bandwidth usage per AS
@@ -190,13 +199,19 @@ Each speed cam will collect the same data over the same time period and sent the
     # requests to path server 
 \end{easylist}
 
-The requests to the path server can be used to find the different path an AS uses for its transmission.
+The requests to the path server can be used to find the different path an AS uses for its transmissions. 
 
-\todo{Use work of ? with his buckets}
+It is also necessary that the inspector has the complete topology of its ISD. This is used to calculate the percentage of available and used bandwidth by an AS. The topology can be retrieved from the Core AS path server.
+
+\todo{Use work of ? with his buckets to get the values}
 
 \subsection{Classify user}
 This part will explain how to distinguish between a greedy and a normal user. This is important to identify a source for a data congestion and the stop it.
 
+
+One attribute of a greedy user is that he uses more bandwidth than other user constantly. Another attribute is, that it is uses more bandwidth from the network than provide to the network. 
+
+The first attribute can be calculate from the measured data as defined in the previous section. For the second one the work of \todo{add paper about virtual credit} can be used. 
 A greedy user uses way more bandwidth than other user. 
 
 \todo{What is the different between a greedy and a normal user?}
