@@ -35,8 +35,7 @@ When the inspector received the data of all speed cams, he will decide, which us
         \node[shape=rectangle,draw=black] (1-8) at (1.5,-2) {1-8};
         \node[shape=rectangle,draw=black] (1-15) at (0,-4) {1-15};
         \node[shape=rectangle,draw=black] (1-16) at (1.5,-3) {1-16};
-        \node (speedcam) at (-1.5, -2.5) [text width=1cm]{Speed cams};
-        
+        \node (speedcam) at (-1.5, -2.5) [text width=1cm]{Speed cams};        
         
         \path[-]	
         (1-1) edge (1-4)
@@ -175,27 +174,76 @@ The following list show this metrics:
 \begin{easylist}
     \MyListProperties
     # avg. bandwidth usage per AS
-    # avg. sent packages per AS
-    # avg. received packages per AS
+    # avg. sent packets per AS
+    # avg. received packets per AS
     # requests to path server 
 \end{easylist}
 
 The requests to the path server can be used to find the different path an AS uses for its transmissions. 
 
-It is also necessary that the inspector has the complete topology of its ISD. This is used to calculate the percentage of available and used bandwidth by an AS. The topology can be retrieved from the Core AS path server.
+It is also necessary that the inspector has the complete topology of its ISD. This is used to calculate the percentage of available and used bandwidth by an AS. There is currently no central unit which has the complete topology of its ISD. Nevertheless, it is possible to calculate it by fetching the path receive requests from the Path server. 
+
+The data stored in the topology are the following:
+
+\begin{easylist}
+    \MyListProperties
+    # source AS
+    # destination AS
+    # bandwidth in bits per second
+\end{easylist}
+\todo{Rotate clockwise for better page utilization}
+\begin{figure}[h]
+    \centering
+    \begin{tikzpicture}
+    \node[shape=rectangle,draw=red] (1-1) at (0,0) {1-1 (core)};
+    \node[shape=rectangle,draw=black] (1-2) at (0,-2) {1-2};
+    \node[shape=rectangle,draw=black] (1-3) at (0,-1) {1-3};
+    \node[shape=rectangle,draw=black] (1-4) at (-1.5,-1) {1-4};
+    \node[shape=rectangle,draw=black] (1-5) at (1.5,-1) {1-5};
+    \node[shape=rectangle,draw=black] (1-6) at (0,-3) {1-6};
+    \node[shape=rectangle,draw=black] (1-7) at (-1.5,-4) {1-7};
+    \node[shape=rectangle,draw=black] (1-8) at (1.5,-2) {1-8};
+    \node[shape=rectangle,draw=black] (1-15) at (0,-4) {1-15};
+    \node[shape=rectangle,draw=black] (1-16) at (1.5,-3) {1-16};
+    
+    \path[-]	
+    (1-1) edge node[sloped, anchor=center, above] {\tiny 1GB/s} (1-4) 
+    (1-1) edge node[sloped, anchor=center, above] {\tiny 1GB/s} (1-3)
+    (1-1) edge node[sloped, anchor=center, above] {\tiny 1GB/s} (1-5)
+    (1-1) edge[bend left=50] node[sloped, anchor=center, above] {\tiny 1GB/s} (1-2)
+    (1-2) edge node[sloped, anchor=center, above] {\tiny 1GB/s} (1-6)
+    (1-3) edge node[sloped, anchor=center, above] {\tiny 1GB/s} (1-2)
+    (1-5) edge node[sloped, anchor=center, above] {\tiny 1GB/s} (1-8)
+    (1-5) edge node[sloped, anchor=center, above] {\tiny 1GB/s} (1-6)
+    (1-6) edge node[sloped, anchor=center, above] {\tiny 1GB/s} (1-7)
+    (1-6) edge node[sloped, anchor=center, above] {\tiny 1GB/s} (1-15)
+    (1-8) edge node[sloped, anchor=center, above] {\tiny 1GB/s} (1-16)
+    ;
+    \end{tikzpicture}
+    \caption{Example topology with annotated bandwidth}
+    \label{fig:main:exampleTopology}
+\end{figure}
+
+When a new inspector is implemented inside an ISD, he has to construct the topology by periodically fetch the newest path requests. Because the topology remains static rather than constantly changing, the fetch rate can be high at the beginning and decrease to a normal value. For example, when the inspector is created, the fetch rate is 0.1 second and will decrease to 1.0 second of a few hours. 
 
 \todo{Use work of ? with his buckets to get the values}
 
 \subsection{Classify user}
 This part will explain how to distinguish between a greedy and a normal user. This is important to identify a source for a data congestion and the stop it.
 
-
+The following list show possible attributes of a greedy user:
+\begin{easylist}
+    # Use much more bandwidth than other user
+    # Higher activity and online time than other user
+\end{easylist}
 One attribute of a greedy user is that he uses more bandwidth than other user constantly. Another attribute is, that it is uses more bandwidth from the network than provide to the network. 
 
 The first attribute can be calculate from the measured data as defined in the previous section. For the second one the work of \todo{add paper about virtual credit} can be used. 
 A greedy user uses way more bandwidth than other user. 
 
-\todo{What is the different between a greedy and a normal user?}
+\todo{What is the difference between a greedy and a normal user?}
+
+
 \section{Next parts}
 \begin{easylist}
     \MyListProperties
