@@ -229,20 +229,63 @@ When a new inspector is implemented inside an ISD, he has to construct the topol
 \todo{Use work of ? with his buckets to get the values}
 
 \subsection{Classify user}
-This part will explain how to distinguish between a greedy and a normal user. This is important to identify a source for a data congestion and the stop it.
+This part will explain what a greedy user is and how to distinguish between a greedy and a normal user. It contain a definition for this work, which will later be used.
 
-The following list show possible attributes of a greedy user:
-\begin{easylist}
-    # Use much more bandwidth than other user
-    # Higher activity and online time than other user
-\end{easylist}
-One attribute of a greedy user is that he uses more bandwidth than other user constantly. Another attribute is, that it is uses more bandwidth from the network than provide to the network. 
+A greedy user is a user, who uses his network resources as the bandwidth in a selfish way and tries to maximize his personal benefit by using as much bandwidth as possible. He even may try to overuses his subscribed bandwidth or avoid the limits by using multi path communication.
 
-The first attribute can be calculate from the measured data as defined in the previous section. For the second one the work of \todo{add paper about virtual credit} can be used. 
-A greedy user uses way more bandwidth than other user. 
+An user may also be classified as a more greedy user than a fair user, when here is a congestion in the network and this user uses the most bandwidth. He may not be acting greedy in the first place, but he can be considered greedy in a global view.
 
-\todo{What is the difference between a greedy and a normal user?}
+Because of this we have to view two aspects which can classify a user as greedy. The first is the use of his resources. He can stay in the limit or he can overuse it. The second is if his activity causes a congestion.
+\begin{table}[h]
+    \centering
+    \begin{tabular}{ r|c|c| }
+        \multicolumn{1}{r}{}
+        &  \multicolumn{1}{c}{no congestion}
+        & \multicolumn{1}{c}{congestion} \\
+        \cline{2-3}
+        stays in limit & I & II \\
+        \cline{2-3}
+        overuses limit & III & IV \\
+        \cline{2-3}
+    \end{tabular}
+    \caption{Different cases of a greedy user}
+    \ref{tab:classifyUser}    
+\end{table}
 
+\autoref{tab:classifyUser} shows these different four cases. The stays im limit or overuses limit means only the bandwidth usage of one connection between two ASes. An AS can have multiple connection to different ASes and can stay in his local limits.
+
+\subsubsection{Case I - Fair user} \ref{sub:main:detection:case1}
+This user uses fewer bandwidth than he has subscribed to. There is also no congestion inside the network. In this case, there is no need to punish the user. They could use even more bandwidth, because it is currently underutilized and wasted.
+
+\subsubsection{Case II - Global greedy user}
+In this case there is a congestion inside the network. The currently used bandwidth is higher than the available. But there is no user who uses more bandwidth than he has subscribed to. Because of the missing culprit the punishment is not as easy as in case 4.
+
+There is a need to find the most greedy user and try to convince him to use less resources for a better network experience for every user. The problem is, to find the most greedy user and to distinguish him from other user.
+
+This can be done by using a clustering algorithm to find user with a similar behaviour. The cluster algorithm needs to find the outlier using more bandwidth than other. It also has to perform well with bigger sizes of elements, any $log(n^2)$ or worse runtime complexity is not sufficient. Because of using only the bandwidth as an attribute, it is possible to use algorithm based on arrays or lists of values, which results in simpler and more efficient algorithm.
+
+The algorithm used for this work is the \textit{Jenks Natural Breaks} algorithm. \todo{Add good source}
+%, Jenks Natural Breaks: https://www.ehdp.com/vitalnet/breaks-1.htm, http://wiki.objectvision.nl/index.php/Fisher\%27s_Natural_Breaks_Classification
+It is applied to a sorted list of values and find good fitting ranges with also a rating value from 0 (worst fit) - 1 (perfect fit). Originally used for creating chloropleth maps, it can be used to divide the amount of users into two groups: fair user and user with high bandwidth usage. 
+
+\todo{Explain the algorithm?}
+
+If the GVF is higher than 0.8 we can assume, that the second range describes user who uses more bandwidth than the other. The member in this range can be considered as more greedy user than the other.
+
+
+\todo{Add figure to display the issue}
+
+\subsubsection{Case III - Overusing with no congestion}
+This case occurs when there is no congestion, but an AS uses more bandwidth than it has subscribed for. For example, an AS has only a subscription for 1 GBit/s, but uses 1.2 GBit/s. The difference to case IV is, that beside overusing, there is no congestion.
+
+On the one hand this behaviour can quickly lead to a congestion when everybody is doing it. On the other hand this behaviour utilizes the bandwidth in a better way, because the wasted bandwidth by not using it is lower.
+
+The user can be clearly considered as greedy, but do not need to be punished immediately. A better way would be to tolerate a certain percentage of overuse and punish the user if he uses more than tolerated. The tolerance range would be 10\% without any problems. If the AS uses more than 110\% of its bandwidth the AS should be considered as a greedy user and receive a delayed punishment.
+
+\todo{Add line graph to visualize this part}
+
+\subsubsection{Case IV - Overuse resulted in a congestion}
+This case is much more simpler than the other. If there is a congestion any user who overuses his bandwidth is considered a greedy user and have to receive immediately punishment to reduce or stop the congestion. 
 
 \section{Next parts}
 \begin{easylist}
