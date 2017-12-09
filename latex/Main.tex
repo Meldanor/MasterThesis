@@ -139,7 +139,7 @@ When the inspector received the data of all speed cams, he will decide, which us
     \label{fig:main:exampleDetectionScheme}
 \end{figure}
 
-The \Cref{fig:main:exampleDetectionScheme} shows an example for the detection scheme. It shows a the ISD 1 and its ASes. In \Cref{fig:main:exampleDetectionSchemeSub1} is the process of choosing speed cams visualized. The ASes 1-2, 1-4 and 1-7 are randomly chosen and now called speed cams. For a certain amount of time, the speed cams collect data about traffic through their border router. This can be seen in \Cref{fig:main:exampleDetectionSchemeSub2}. After the collection is finished, the data is sent to the inspector, which is shown by \Cref{fig:main:exampleDetectionSchemeSub3}.
+The \autoref{fig:main:exampleDetectionScheme} shows an example for the detection scheme. It shows a the ISD 1 and its ASes. In \autoref{fig:main:exampleDetectionSchemeSub1} is the process of choosing speed cams visualized. The ASes 1-2, 1-4 and 1-7 are randomly chosen and now called speed cams. For a certain amount of time, the speed cams collect data about traffic through their border router. This can be seen in \autoref{fig:main:exampleDetectionSchemeSub2}. After the collection is finished, the data is sent to the inspector, which is shown by \autoref{fig:main:exampleDetectionSchemeSub3}.
 
 The following section will explain the details about the selection, the data to collect and to classify the user.
 
@@ -249,12 +249,12 @@ Because of this we have to view two aspects which can classify a user as greedy.
         \cline{2-3}
     \end{tabular}
     \caption{Different cases of a greedy user}
-    \ref{tab:classifyUser}    
+    \label{tab:classifyUser}    
 \end{table}
 
 \autoref{tab:classifyUser} shows these different four cases. The stays im limit or overuses limit means only the bandwidth usage of one connection between two ASes. An AS can have multiple connection to different ASes and can stay in his local limits.
 
-\subsubsection{Case I - Fair user} \ref{sub:main:detection:case1}
+\subsubsection{Case I - Fair user} \label{sub:main:detection:case1}
 This user uses fewer bandwidth than he has subscribed to. There is also no congestion inside the network. In this case, there is no need to punish the user. They could use even more bandwidth, because it is currently underutilized and wasted.
 
 \subsubsection{Case II - Global greedy user}
@@ -266,7 +266,7 @@ This can be done by using a clustering algorithm to find user with a similar beh
 
 The algorithm used for this work is the \textit{Jenks Natural Breaks} algorithm. \todo{Add good source}
 %, Jenks Natural Breaks: https://www.ehdp.com/vitalnet/breaks-1.htm, http://wiki.objectvision.nl/index.php/Fisher\%27s_Natural_Breaks_Classification
-It is applied to a sorted list of values and find good fitting ranges with also a rating value from 0 (worst fit) - 1 (perfect fit). Originally used for creating chloropleth maps, it can be used to divide the amount of users into two groups: fair user and user with high bandwidth usage. 
+It is applied to a sorted list of values and find good fitting ranges with also a rating value from 0 (worst fit) to 1 (perfect fit). Originally used for creating chloropleth maps, it can be used to divide the amount of users into two groups: fair user and user with high bandwidth usage. 
 
 \todo{Explain the algorithm?}
 
