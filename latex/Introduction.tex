@@ -17,15 +17,54 @@ Instead of fixing the current internet and having a brown field situation there 
 
 
 \section{Motivation}
-One of the many problems described previously is the strong increase of data usage on the internet. In the advent of video streaming in form of Video on Demand (VOD) via services like Youtube and Netflix and live video streaming like Twitch the data usage of the users increased rapidly. There is also an increasing demand for higher resolutions, which results in bigger video sizes. The current standard of Full HD for a video will be succeeded by new standards like the 4k. The user also demands for a higher refresh rate. Currently the videos are sent with 30fps, but there is a benefit sing 60fps or even 144fps for real fast movements.
+One of the many problems described previously is the strong increase of data usage on the internet. The DE-CIX in Frankfurt, Germany, a data carrier, registers with each year an higher amount of data. The graph in \autoref{fig:intro:decixData} shows this increase . In 2014 the highest registered bits per second was around three tera bytes / s. Three years later in 2017 the peak was at 6 tera byte, twice the amount. 
 
-But videos are not the only reason for a higher bandwidth usage. Big Data companies processing petabytes of data each day rely on a stable and high bandwidth connection. With the IoT trend more and more devices are collection and sending data through the internet.
+In the advent of video streaming in form of Video on Demand (VOD) via services like Youtube and Netflix and live video streaming like Twitch the data usage of the users increased rapidly. There is also an increasing demand for higher resolutions, which results in bigger video sizes. The current standard of Full HD for a video will be succeeded by new standards like the 4k. The user also demands for a higher refresh rate. Currently the videos are sent with 30fps, but there is a benefit sing 60fps or even 144fps for real fast movements.
+
+But videos are not the only reason for a higher bandwidth usage. Big Data companies processing petabytes of data each day rely on a stable and high bandwidth connection. There is also a trend with Internet-of-Things (IoT) to install small devices which collect and send data through the internet.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.95\linewidth]{20171210_1515_decix_data}
+    \caption*{\tiny{ \url{https://www.de-cix.net/en/locations/germany/frankfurt/statistics} (10.12.2017)}}
+    \label{fig:intro:decixData}
+    \caption{5 year statistics of DE-CIX traffic}
+\end{figure}
 
 \todo{Add picture of DE-CIX current bandwidth}
 
 One solution to solve this problems is to scale-up and install more and more bandwidth capacities like fiber cables or newer devices. This is inefficient and consumes probably more energy and increases so the running costs. There are also physical limits for improving the performance so that a small benefit results in high costs.
 
-Another solution is to better utilize the current resources as it is done with the multi path process in SCION. 
+Another solution is to better utilize the current resources as it is done with the multi path process in SCION. The user can split their data and sent the packets via multiple connections. This leads to a better usage of the available bandwidth in the network. In currents internet this is not possible, because the router are deciding for themselves which route to take to the destination. 
+
+\begin{figure}[h]
+    \centering
+    \begin{tikzpicture}
+    \node[shape=rectangle,draw=black] (1-1) at (0,0) {1-1};
+    \node[shape=rectangle,draw=black] (1-2) at (2,-1) {1-2};
+    \node[shape=rectangle,draw=black] (1-3) at (2,1) {1-3};
+    \node[shape=rectangle,draw=black] (1-4) at (4,0) {1-4};
+    
+    \path[-]	
+    (1-1) edge node[sloped, anchor=center, below] {\tiny 1GB/s} (1-2) 
+    (1-1) edge node[sloped, anchor=center, above] {\tiny 1GB/s} (1-3)
+    (1-1) edge node[sloped, anchor=center, above] {\tiny 1GB/s} (1-4)
+    (1-2) edge node[sloped, anchor=center, below] {\tiny 1GB/s} (1-4)
+    (1-3) edge node[sloped, anchor=center, above] {\tiny 1GB/s} (1-4)
+    ;
+    \path[-{Latex[width=3mm]}, dashed]
+    (1-1) edge[bend right=10] (1-4)
+    (1-1) edge[bend left=80] (1-4)
+    (1-1) edge[bend right=80] (1-4)
+    ;
+    \end{tikzpicture}
+    \caption{Example topology for multipath}
+    \label{fig:intro:exampleMultipath}
+\end{figure}
+
+
+This new method shall encourages user to better utilize the network, but it can also be misused. In \autoref{fig:intro:exampleMultipath} is an example visualized. Each AS is connected with each other via a 1 gigabit/s connection. AS 1-1 can send AS 1-4 using single path data with a 1 gigabit/s directly. It could also uses the paths 1-1$\rightarrow$1-2$\rightarrow$1-4 and 1-1$\rightarrow$1-3$\rightarrow$1-4 to sends its data and increase its bandwidth to ideally 3 gigabit/s, if there is zero delay on the hops. This possibility rises the questions how to monitor and enforce the bandwidth usage of a one particular AS. When using a single path connection the measurement point is at the destination. If this AS exceeds its limit the destination router can drop packets. This solution is not possible in a multi path communication. It is important to find an answer for this question to avoid misuse.
+
 \begin{easylist}
     \MyListProperties
     # Resources in networks (bandwidth, CPU time and memory usage)
