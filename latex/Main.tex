@@ -144,8 +144,37 @@ The \autoref{fig:main:exampleDetectionScheme} shows an example for the detection
 The following section will explain the details about the selection, the data to collect and to classify the user.
 
 \subsection{Selection process}
-This part will explain the process how ASes are selected to be speed cams.
+This part will explain the process how ASes are selected to be speed cams. It will outline what are the parameters and conditions to be selected and what are the results.
 
+The selection of an AS as a speed cam is not trivial. It directly effects the accuracy and the efficiency of the measurement, which is a successor phase of the selection. Inactive ASes on the edge of the network represent a bad selection. They are incapable of monitoring the flow of data through the network, because they are not central enough. Also an inactive AS itself is probably not a greedy AS, while a busy AS can be the source of a congestion. A good selection has to achieve the opposite and result in a high accuracy.
+
+The process of selection should not be predictable and so must be randomized. Each AS inside the network should have a chance to be picked. This makes it impossible for malicious and greedy ASes to predict the speed cam placements and the possibility to avoid them. They are not able to use unobserved paths to avoid the punishment. As described before a good selection is necessary for a high accuracy, the chances of ASes to be picked are higher if they are good candidates. But even very bad candidates have a small chance to be picked.
+
+It is also important to pick as few ASes as possible for monitoring. The inspector can receive the complete network flow by monitoring all ASes inside it, but this is not efficient in sight of minimal performance impact and so not practical. The size should also be dynamic and scale with the amount of ASes in the network. A good start to be scalable is that the size of speed cams is $log(n)$, where $n$ is the size of ASes inside the network. To increase the unpredictability it is crucial to use a random interval instead of a fixed value. 
+
+The next parts will explain in detail the different metrics and parameters important to the selection process.
+
+\subsubsection{Selection parameter}
+
+A system having an impact on the networks throughput have to be configurable to fit the individual needs of an ISD. One ISD can have ASes with great computing performance and want to run the inspector more often. Another ISD can have the opposite foundation and want to use the approach fewer. This part will list configurable parameter for the SpeedCam approach. A default one will also be presented as used in the evaluation.
+
+
+
+\subsubsection{Selection metrics}
+
+As described in the introduction of this section any AS has a chance to be selected as a SpeedCam. This part will list and describe each metric important for the selection. These metrics will later be used to present a calculation of the chance to be picked.
+\todo{Maybe a visualization of a test graph?}
+The first one is quite obvious for a network based problem and it is the \textbf{degree} of an AS. The degree is the sum of all incoming and outgoing connection of the AS. It is later denoted as $deg(AS)$. It gives a good heuristic how important the AS is for the network. The higher the degree the higher the possibility to use this node for a transaction path.
+
+Similar to the degree is the second metric, the \textbf{sum of bandwidth}. It is the total of the possible bandwidth of this AS and is denoted as $b(AS)$. A central AS inside an ISD will have a higher bandwidth and can be a good candidate to measure a bigger chunk of the ISD.
+
+The reason to select ASes for SpeedCams is to find the source of a congestion. Any AS which successfully helped to find a congestion should be considered as good candidates for the next selection. This intention can be represented as a decreasing point system in which newer episodes (selection processes in the past) are more important than older. For this work this is called the \textbf{success} and is denoted as $su_{k}(AS)$, where $k$ stands for the last episodes. A success in an episode is presented by 1 and a failure is presented as 0. Using this method requires obviously to store for each AS an amount of episodes and its successes. But this additional memory is considerable small and consists of few boolean values.
+
+
+\subsubsection{Selection chance of a speed cam}
+This describes the 
+
+\todo{Old part} 
 It is obvious that the inspector has to randomly pick ASes at random time slots. If the process were deterministic, then malicious ASes could exploit it. They would use fewer resources at the time of the inspection and so avoid punishment.
 
 It is also important to only inspect, when it is necessary. By limiting the monitoring, fewer resources as the bandwidth or computation time are utilized. One possibility is to start the inspection when a bandwidth is exceeded inside the ISD. This happens when the total currently used bandwidth of a connection is higher than the capacity. Using the method can be too late to avoid the congestion, but it would limit the resource usage. 
@@ -164,6 +193,8 @@ The necessary amount of speed cams inside a ISD is one interesting question to a
 A pure random amount of ASes is a intuitive answer, but in big ISD with hundreds of ASes only one speed cam will be not enough to measure multi-path bandwidth. An improved version is that the amount is between a certain percentage of the total ASes and the total number itself.
 
 \todo{This should be answered inside experiments or maybe in further works?}
+
+
 
 \subsection{Data and metrics}
 This part will describe the metrics which are measured and the resulting data which is collected by the inspection.
