@@ -154,11 +154,6 @@ It is also important to pick as few ASes as possible for monitoring. The inspect
 
 The next parts will explain in detail the different metrics and parameters important to the selection process.
 
-\subsubsection{Selection parameter}
-
-A system having an impact on the networks throughput have to be configurable to fit the individual needs of an ISD. One ISD can have ASes with great computing performance and want to run the inspector more often. Another ISD can have the opposite foundation and want to use the approach fewer. This part will list configurable parameter for the SpeedCam approach. A default one will also be presented as used in the evaluation.
-
-
 
 \subsubsection{Selection criteria}
 
@@ -181,8 +176,27 @@ $$SU_{k}(AS) = \sum_{n=0}^{k} \frac{1}{n+1}*su_{k-n}(AS)$$
 \newpage
 \textbf{Average activity} [ $\overline{act_{t_1,t_2}}(AS)$ ]: The relation between possible and used capacity of an AS in a time interval between $t_1$ and $t_2$. The time span can be an hour or a day. This make it possible to consider the fact of a different activity profiles over a day. An AS can be active in the morning and so be only useful for measurements in the morning while another AS is the same for the evening. 
 
+
+\subsubsection{Selection parameter}
+
+A system having an impact on the networks throughput have to be configurable to fit the individual needs of an ISD. One ISD can have ASes with great computing performance and want to run the inspector more often. Another ISD can have the opposite foundation and want to use the approach fewer. This part will list configurable parameter for the SpeedCam approach. A default one will also be presented as used in the evaluation.
+
+\textbf{Additional SpeedCams} [ $n_{add}$ ]: Increases/decreases the amount of SpeedCam resulting in $log(n) + n_{add}$ ASes to be selected as SpeedCams.
+
+\textbf{Weight Degree} [ $w_{deg}$ ]: A coefficient for the degree. 
+
+\textbf{Weight Capacity} [ $w_{cap}$ ]: A coefficient for the capacity. 
+
+\textbf{Weight Success} [ $w_{suc}$ ]: A coefficient for the success. 
+
+\textbf{Weight Activity} [ $w_{act}$ ]: A coefficient for the activity. 
+
+\textbf{Amount of episodes} [ $k$ ]: The number of previous episodes to store for each AS. A higher episode will result in a higher computation cost, and can result in a higher precision, but it doesn't have to.
+
 \subsubsection{Selection chance of a speed cam}
-This describes the 
+This parts summarizes the points of the previous parts into one formula to calculate the chance of an AS to be selected as a SpeedCam.
+
+$$P_{SC}(AS) = w_{deg}\cdot deg(AS) + w_{cap}\cdot cap(AS) + w_{suc}\cdot SU_k(AS) + w_{act}\cdot \overline{act_{t_1,t_2}}(AS)$$
 
 \todo{Old part} 
 It is obvious that the inspector has to randomly pick ASes at random time slots. If the process were deterministic, then malicious ASes could exploit it. They would use fewer resources at the time of the inspection and so avoid punishment.
