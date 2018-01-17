@@ -160,16 +160,26 @@ A system having an impact on the networks throughput have to be configurable to 
 
 
 
-\subsubsection{Selection metrics}
+\subsubsection{Selection criteria}
 
-As described in the introduction of this section any AS has a chance to be selected as a SpeedCam. This part will list and describe each metric important for the selection. These metrics will later be used to present a calculation of the chance to be picked.
+As described in the introduction of this section any AS has a chance to be selected as a SpeedCam. This part will list and describe each criteria important for the selection. They are divided in two categories, which are desribed later. The denotations of these criteria will later be used to present a calculation of the chance to be picked.
 \todo{Maybe a visualization of a test graph?}
-The first one is quite obvious for a network based problem and it is the \textbf{degree} of an AS. The degree is the sum of all incoming and outgoing connection of the AS. It is later denoted as $deg(AS)$. It gives a good heuristic how important the AS is for the network. The higher the degree the higher the possibility to use this node for a transaction path.
 
-Similar to the degree is the second metric, the \textbf{sum of bandwidth}. It is the total of the possible bandwidth of this AS and is denoted as $b(AS)$. A central AS inside an ISD will have a higher bandwidth and can be a good candidate to measure a bigger chunk of the ISD.
+The following presented criteria are considered \textbf{static} and can be calculated without a history of past measurements. They only require the topology of the ISD.
 
-The reason to select ASes for SpeedCams is to find the source of a congestion. Any AS which successfully helped to find a congestion should be considered as good candidates for the next selection. This intention can be represented as a decreasing point system in which newer episodes (selection processes in the past) are more important than older. For this work this is called the \textbf{success} and is denoted as $su_{k}(AS)$, where $k$ stands for the last episodes. A success in an episode is presented by 1 and a failure is presented as 0. Using this method requires obviously to store for each AS an amount of episodes and its successes. But this additional memory is considerable small and consists of few boolean values.
+\textbf{Degree} [ $deg(AS)$ ]: The sum of incoming and outgoing connection of an AS. The reason for assuming this criterion is that an AS with a high amount of connection represents a central node inside the network. This leads to the heuristic that a high degree has a bigger chance to record a great part of the networks traffic.
 
+\textbf{Total capacity} [ $cap(AS)$ ]: The sum of the connection capacity of an AS. The capacity is the subscribed maximum possible bandwidth a connection can transfer. Similar to the \textbf{Degree} this criteria is to find central hubs inside a network. ASes with a high capacity will be often by other ASes to transfer their data, so this leads to a good possibility to measure the traffic at theses ASes.
+
+The now following criteria are \textbf{dynamic} and requires a history of past measurements (episodes). The amount of entries can vary based on the needs of an ISD.
+
+\textbf{Success rate} [ $SU_k(AS)$ ]: Any AS which was a SpeedCam in an episode $k$ episodes ago and when the source of congestion was identified is rewarded by a point and considered a successful SpeedCam. The opposites, not able to identify the source, are not rewarded and receive no points. This can be abstracted as a one (1) for a success in an episode and a zero (0) for a failure. A successful AS so will have a higher probability to be selected again than a unsuccessful AS. 
+Considering the fact that a network is a dynamic element and traffic can vary it is important to weight the successes. This leads to the assumption, that a more recent episode is more important as an older one. The \textbf{success rate} of an AS for last-$k$ episodes is calculated as the following:
+
+$$SU_{k}(AS) = \sum_{n=0}^{k} \frac{1}{n+1}*su_{k-n}(AS)$$
+
+\newpage
+\textbf{Average activity} [ $\overline{act_{t_1,t_2}}(AS)$ ]: The relation between possible and used capacity of an AS in a time interval between $t_1$ and $t_2$. The time span can be an hour or a day. This make it possible to consider the fact of a different activity profiles over a day. An AS can be active in the morning and so be only useful for measurements in the morning while another AS is the same for the evening. 
 
 \subsubsection{Selection chance of a speed cam}
 This describes the 
