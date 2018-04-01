@@ -23,7 +23,7 @@
 \usepackage[binary-units=true]{siunitx}
 
 % table stuff
-\usepackage{multirow}	% Multirow in tables
+\usepackage{multirow, array}	% Multirow in tables
 \usepackage{booktabs}	% Special lines in tables
 \usepackage{diagbox}	% Box with diagonal in tables
 \usepackage{makecell}	% Multiline cells and more
@@ -39,8 +39,14 @@
 
 % Easy use of list (alternative to itemize)
 \usepackage[sharp]{easylist}
-\newcommand{\MyListProperties}{\ListProperties(Hide=100, Hang=true, Progressive=4ex, Space=0.0ex, Space3=-0.5ex, Space*=-0.5ex, Style*=$\bullet\,$,Style2*=$\circ$,Style3*=$\circ$)}
-
+\newcommand{\MyListProperties}{
+    \NewList
+    \ListProperties(Hide=100, Hang=true, Progressive=4ex, Space=0.0ex, Space3=-0.5ex, Space*=-0.5ex, Style*=$\bullet\,$,Style2*=$\circ$,Style3*=$\circ$)
+}
+\newcommand{\MyNumberedListProperties}{
+    \NewList
+    \ListProperties(Hang=true, Progressive=4ex, Space=0.0ex, Space3=-0.5ex, Space*=-0.5ex)
+}
 % Links/URLs in proper colors
 \usepackage{hyperref}
 \definecolor{dark-red}{rgb}{0.4,0.15,0.15}

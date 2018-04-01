@@ -3,9 +3,68 @@
 
 \chapter{SpeedCam}\label{chap:basics}
 
-The REAL stuff. All your precious work written down for the benefit of humanity.
+This chapter will describe the three following parts. At first it will outline the general idea of the SpeedCam approach for any network type. After this it will describe the specific adaptation for the SCION network. At last there will be an explanation what has to be changed for SCIONLab and the reason for that.
 
 \section{Overview}
+SpeedCam is an heuristic approach to monitor network traffic with regards to limited resources. It analyses the network structure and decided based on the heuristic where are good places to monitor local traffic. The approach also tries to reduce the necessary amount of probes to minimize the resource impact an the machines.
+
+
+\subsection{Inspection game}
+The idea behind SpeedCam is based on the \textit{Inspection Game} in the game theory \todo{Quelle einfügen}. Inside the game is a \textit{task} to be done under defined \textit{rules}. The execution of the task can be simpler, more efficient or more effective with a violation of these rules. The task is performed by one of the two parties, the \textit{inspectee} and the compliance of the rules costs resources and is monitored by the second party, the \textit{inspector}. The inspectee has a general interest to break the rules to perform better, while the inspector wants to reduce his amount of inspections to use as few as possible resources. The possible combination are shown in \autoref{tab:inspectionGameMatrix}.
+
+\begin{table}[h]
+    \centering
+    \begin{tabular}{cc|c|c|}
+        & \multicolumn{1}{c}{} & \multicolumn{2}{c}{Inspector}\\
+        & \multicolumn{1}{c}{} & \multicolumn{1}{c}{Inspect}  & \multicolumn{1}{c}{Ignore} \\\cline{3-4}
+        \multirow{2}*{Inspectee}  & Comply & $A$ & $C$ \\\cline{3-4}
+        & Violate & $B$ & $D$ \\\cline{3-4}
+    \end{tabular}
+    \caption{Inspection game matrix.}
+    \label{tab:inspectionGameMatrix}
+\end{table}
+
+The cases $B$ and $C$ are good investments of the inspectors limited resources. In the first one he didn't inspect while the task was performed without violation and in the second one the inspector found the culprit. For case $A$ were the resources of the inspector wasted because there was no reason to inspect. The inspector failed in its task in case $D$, because he missed a violation of the rules by not investing the resources.
+
+Because of the shown cases and it results it is obvious that a \textit{pure strategy} doesn't make sense in this game. When the inspector always inspect he will waste resources and when the inspector always ignores he fails his task. Instead of a pure strategy there must exist a \textit{mixed strategy} defined by probabilities for each action to be chosen. \todo{Quelel für Nash Beweis}.
+
+
+\subsection {Generalized concept}
+The previously described form of the Inspection game is adopted for networks for this work. The \textit{nodes} of a network are the \textit{inspectees}, their \textit{task} is to \textit{transfer} many data in a short time. The \textit{rule} for all nodes is, that a transaction of data \textit{mustn't exceed the link limits} or disturb other nodes transfer. These limits can be given by the physical cable nature or are artificial bilateral agreed limits. A \textit{detected violation} of these rules can result in throttling the bandwidth or even exclude the node from the node, temporary or permanently. A node can try to exceed the limits and so breaking the rule, while avoiding any inspection. 
+
+The \textit{inspector} in such a game has the possibility to monitor a nodes network traffic. Monitoring a node costs computation resources such as memory or cpu cycles\todo{Quelle für Leistungsaufwand von switches nur für switching}. Both can be critical for a switch to send packets. Therefore an inspection, necessary or not, will have an impact on the network throughput. The challenge of the inspector is to only monitor when a node is exceeding its limits. He will be presented in this work as the SpeedCam approach. These will give the inspector an heuristic with the goal to increase the amount of cases for $B$ and $C$ and to reduce it for $A$ (not wasting resources) and $D$ (fairness for network member).
+
+The general concept of SpeedCam applies to types of networks which meet the following requirements. The network must consist of \textit{nodes}, ASes, and \textit{links}, which connect only two ASes. The nodes and links must form an undirected graph. For SpeedCam it is not necessary that the graph must be known in the first place nor to be static. This is important because real networks tend to be dynamic and to be decentralized with only partial knowledge about its structure. The inspector must have access to these network in such a form, that he can gain knowledge about the networks structure and monitor a nodes traffic.
+
+When the requirements are met the inspector can be run as a component. He executes the SpeedCam approach and stores the necessary information about the nodes. It is described in this work as a centralized component, but it can be split into multiple inspectors each responsible for a subnetwork. 
+
+The SpeedCam approach consists of the following four phases:
+\todo{use graphic instead of list}
+\begin{easylist}
+    \MyNumberedListProperties
+    \ListProperties(Start1=0)
+    # Exploration
+    # Selection
+    # Monitoring
+    # Conclusion
+\end{easylist}
+
+The exploration phase is the 0-th phase because it can be skipped if the network is static and fully explored. This phase can also be running in the background in parallel to the other phases. Phase 1 to 3 must be running in sequential order, because they depend on each other results. The next sections will explain each phase in detail.
+
+\subsection{Exploration}
+This phase has the goal to create an undirected graph of the network to monitor. The structure of the network is necessary for the following phases. 
+
+For the general concept of the SpeedCam approach exists multiple possibilities to explore the underlying network. Because the only assumption about the network is that nodes are connected via links these possibilities are also general and has some flaws. In later discussed specialized forms of the SpeedCam approach there are fewer flaws.
+
+The first possibility is to manually create the graph. A network, virtual or physically present, must be created by an entity, be it a humanoid administrator or a program. Every change of the network can be logged and used to create the graph. This is obviously a tedious task and not error prone. 
+
+Another possibility needs a start point inside the network. With such a start point it is possible to get all connected nodes with the use of a traversal algorithm, like Breadth-First, Depth-First, Djikstra or Floyd–Warshall. This is for example used by the Border-Gateway-Protocol (BGO).\todo{Quellen für alles}. This is for such a general network the way to explore the network graph.
+
+The exploration phase itself needs to be constantly repeated to react to changes inside the network. Inactive or disconnected nodes doesn't need to be monitored.
+
+\subsection{Selection}
+
+Based on the results of the previous exploration phase, the selection phase uses the network information to select good candidates for probe points.
 
 \section{Detection scheme}
 This part will contain the description about the detection scheme. It will outline how to detect a greedy user and provide a detailed overview of its functionality.
@@ -173,10 +232,9 @@ Considering the fact that a network is a dynamic element and traffic can vary it
 
 $$SU_{k}(AS) = \sum_{n=0}^{k} \frac{1}{n+1}*su_{k-n}(AS)$$
 
-\newpage
 \textbf{Average activity} [ $\overline{act_{t_1,t_2}}(AS)$ ]: The relation between possible and used capacity of an AS in a time interval between $t_1$ and $t_2$. The time span can be an hour or a day. This make it possible to consider the fact of a different activity profiles over a day. An AS can be active in the morning and so be only useful for measurements in the morning while another AS is the same for the evening. 
 
-
+\newpage
 \subsubsection{Selection parameter}
 
 A system having an impact on the networks throughput have to be configurable to fit the individual needs of an ISD. One ISD can have ASes with great computing performance and want to run the inspector more often. Another ISD can have the opposite foundation and want to use the approach fewer. This part will list configurable parameter for the SpeedCam approach. A default one will also be presented as used in the evaluation.
@@ -198,25 +256,25 @@ This parts summarizes the points of the previous parts into one formula to calcu
 
 $$P_{SC}(AS) = w_{deg}\cdot deg(AS) + w_{cap}\cdot cap(AS) + w_{suc}\cdot SU_k(AS) + w_{act}\cdot \overline{act_{t_1,t_2}}(AS)$$
 
-\todo{Old part} 
-It is obvious that the inspector has to randomly pick ASes at random time slots. If the process were deterministic, then malicious ASes could exploit it. They would use fewer resources at the time of the inspection and so avoid punishment.
-
-It is also important to only inspect, when it is necessary. By limiting the monitoring, fewer resources as the bandwidth or computation time are utilized. One possibility is to start the inspection when a bandwidth is exceeded inside the ISD. This happens when the total currently used bandwidth of a connection is higher than the capacity. Using the method can be too late to avoid the congestion, but it would limit the resource usage. 
-It is also important to have a cooldown time between inspection, even if the congestion cannot be solved by punishing greedy user. Otherwise the inspection will be done without an effect.
-
-\todo{Add example graph for that}
-
-Another approach is to prevent such data jams by randomly monitoring ASes throughout the day. This would be done without the urgent need of a bandwidth exceed. This will waste resources but can identify a greedy user before he can disturb other user. 
-
-A mix of both approaches will be investigated by this work. The first investigation will be shorter than the second because of the urgency to identify the source of the congestion. The second one can be done over a longer period for a more accurate result.
-
-\todo{Add obvious impossible approaches: ALways monitor, never monitor}
-
-The necessary amount of speed cams inside a ISD is one interesting question to answer. Fewer speed cams result in a lower resource impact, which is good. But it will also result in a lower precision, which can lead to wrong accusations or missing greedy users.
-
-A pure random amount of ASes is a intuitive answer, but in big ISD with hundreds of ASes only one speed cam will be not enough to measure multi-path bandwidth. An improved version is that the amount is between a certain percentage of the total ASes and the total number itself.
-
-\todo{This should be answered inside experiments or maybe in further works?}
+%\todo{Old part} 
+%It is obvious that the inspector has to randomly pick ASes at random time slots. If the process were deterministic, then malicious ASes could exploit it. They would use fewer resources at the time of the inspection and so avoid punishment.
+%
+%It is also important to only inspect, when it is necessary. By limiting the monitoring, fewer resources as the bandwidth or computation time are utilized. One possibility is to start the inspection when a bandwidth is exceeded inside the ISD. This happens when the total currently used bandwidth of a connection is higher than the capacity. Using the method can be too late to avoid the congestion, but it would limit the resource usage. 
+%It is also important to have a cooldown time between inspection, even if the congestion cannot be solved by punishing greedy user. Otherwise the inspection will be done without an effect.
+%
+%\todo{Add example graph for that}
+%
+%Another approach is to prevent such data jams by randomly monitoring ASes throughout the day. This would be done without the urgent need of a bandwidth exceed. This will waste resources but can identify a greedy user before he can disturb other user. 
+%
+%A mix of both approaches will be investigated by this work. The first investigation will be shorter than the second because of the urgency to identify the source of the congestion. The second one can be done over a longer period for a more accurate result.
+%
+%\todo{Add obvious impossible approaches: ALways monitor, never monitor}
+%
+%The necessary amount of speed cams inside a ISD is one interesting question to answer. Fewer speed cams result in a lower resource impact, which is good. But it will also result in a lower precision, which can lead to wrong accusations or missing greedy users.
+%
+%A pure random amount of ASes is a intuitive answer, but in big ISD with hundreds of ASes only one speed cam will be not enough to measure multi-path bandwidth. An improved version is that the amount is between a certain percentage of the total ASes and the total number itself.
+%
+%\todo{This should be answered inside experiments or maybe in further works?}
 
 
 
