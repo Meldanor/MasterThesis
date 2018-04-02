@@ -38,7 +38,7 @@ The general concept of SpeedCam applies to types of networks which meet the foll
 
 When the requirements are met the inspector can be run as a component. He executes the SpeedCam approach and stores the necessary information about the nodes. It is described in this work as a centralized component, but it can be split into multiple inspectors each responsible for a subnetwork. 
 
-The SpeedCam approach consists of the following four phases:
+One run of the SpeedCam approach is called an \textit{episode} and is broken down in the following four phases:
 \todo{use graphic instead of list}
 \begin{easylist}
     \MyNumberedListProperties
@@ -64,7 +64,118 @@ The exploration phase itself needs to be constantly repeated to react to changes
 
 \subsection{Selection}
 
-Based on the results of the previous exploration phase, the selection phase uses the network information to select good candidates for probe points.
+Based on the results of the previous exploration phase, the selection phase uses the network information and returns a set of nodes to monitor. This phase uses the heuristic. It has to estimate in advance if the node will transfer any traffic.
+
+The selection process has two goals to achieve. It has to minimize the amount of used probes to save resources. But also the probes have to form the maximum amount of traffic cover to achieve a high accuracy of the monitoring. These two goals are contradictory. The minimum of probes is zero, which is equals to no inspection and results in no traffic monitored. On the other hand, the complete traffic can be monitored by using all nodes as probes, but this is not resource efficient.
+
+Because of this, the selection heuristic must achieve a trade-off between as few probes as possible with a high enough precision of the monitored traffic. The heuristic will use information about the graph structure itself and information from past monitoring phases to increase the quality of a selection.
+
+The quality of a selection will be defined as the following:
+
+\begin{equation} \label{equo:qualitySelection}
+q(S,N) = \frac{\text{traffic}(S)}{\text{traffic}(N)}
+\end{equation}
+where:
+\begin{conditions}
+    S     &  Set of probe nodes \\
+    N     &  Set of all nodes
+\end{conditions}
+
+Another criteria of this phase is the randomness of the selection process. The inspector mustn't be predictable for the inspectees, otherwise they will have an advantage and can avoid an inspection. When a set of probes is predictable for the inspectees, they can decide to violate the rules outset of this set and chose other paths or times to transfer their data. 
+
+For example, the \autoref{fig:intro:exampleMultipath} shows a simple network. Lets assume, that the inspector is watching the node \textbf{1-2} and all the nodes inside the network are knowing this fact. With that knowledge, they will choose the path 1-1$\rightarrow$1-3$\rightarrow$1-4 instead and avoid the inspection. This problem is even more present for a real network, because they tend to be complex and provide even more alternative routes to avoid an inspection.
+
+One solution to counter the predictability is to keep the algorithm and its configuration secret from the inspectees. The solution has two main flaws: The first one is, that \textit{security-by-obscurity} doesn't work in long time. \todo{Quelle für beispiele}. Without going into detail about security problems, there is one weak spot in the security chain, the human itself. A dissatisfied employee can publish the algorithm and its configuration to the public as an act of revenge, sell the information or unintentionally leak it. The other flaw is, that given a big enough sample rate, the insectess can statistically reverse-engineer the algorithm. \todo{Quelle für solche angriffe}
+
+A better solution is to introduce an entropy to the selection process. Instead of using the set with the highest quality, the algorithm will randomly choose a set. This disagrees with the selection process itself. There is no need to select candidates based on information when every candidate can be chosen randomly.
+
+The SpeedCam approach uses a candidate score $cs(n)$ to determine the probability of each node to be chosen. While not guaranteed to be chosen, the chance to be a probe is higher for a good candidate than for a bad candidate. This process will result in a high quality while also being not fully deterministic. The following will describe how this candidate score is composed of.
+
+\subsubsection{Selection criteria}
+The following presented criteria are considered \textbf{static} and can be calculated without a history of past measurements. They require the topology of the network.
+
+\textbf{Degree} [ $deg(n)$ ]: The sum of incoming and outgoing links of node. This criteria represents the potential for a good transfer hub and can be used by other nodes as a central transfer hub. The higher the degree of a node, the higher the possibility to monitor a great range of traffic sources. A node on the edge of the network, a sink, has a low degree, mostly 1. These are uninteresting because they can only monitor the traffic of this node. A good real example for a node with a high degree are the nodes of submarine cables, as shown here\footnote{\url{https://www.submarinecablemap.com}, 02.04.2018}. They have the ability to connect two continents with each other and provide so a good point to measure traffic.
+
+\textbf{Total capacity} [ $cap(n)$ ]: The sum of the connection capacity of a node. The capacity is the physical or between partners agreed limit to transfer bytes per second. This is similar to the \text{Degree}, but it differs in one aspect: The degree is only a indicator about the possible connectivity, but not for the possible throughput of traffic. A node with a high capacity can be preferred over a node with a high degree and lower capacity to transfer data. Because of this difference the two criteria are separate.
+
+The now following criteria are \textbf{dynamic} and requires a history of the past episodes. The amount of hold episodes is limited by the size of the network, because is needs memory per node. As seen later, the length of saved history will also have an impact on the quality of the selection process.
+
+\textbf{Average activity} [ $\overline{act_{t_1,t_2}}(n)$ ]: The relation between possible and used capacity of a node in a time interval between $t_1$ and $t_2$. The time span can be of any resolution, but should be consistent. 
+
+\begin{equation}
+\overline{act_{t_1,t_2}}(n) = \frac{\text{traffic}_{t_1,t_2}(n)}{cap(n)}
+\end{equation}
+
+Storing the timespan for an episodes gives the possibility creating a profile for a node to be used by the selection process. The selection itself can now be time based. A node with a high activity in the morning can receive a higher candidate score than a node with a high activity in the evening. This can increase the quality of the set.
+
+The meaningfulness of that criteria depends of the length of the history. A short history maybe represents a inaccurate result of the node, while a long history can hold outdated information about the behaviour of that node. The evaluation part will show the influence of the amount of episodes.
+
+\subsubsection{Candidate score}
+
+The score for each node is calculated as the following:
+
+\begin{equation} \label{equo:candidateScore}
+cs(n) = w_{deg}\cdot deg(n) + w_{cap}\cdot cap(n) + w_{act}\cdot \overline{act_{t_1,t_2}}(n)
+\end{equation}
+
+where:
+\begin{conditions}
+    n           &  A node \\
+    w_{deg}     &  Weight for the degree,   $\in \mathbb{R}_{\ge 0}$ \\
+    w_{cap}     &  Weight for the capacity, $\in \mathbb{R}_{\ge 0}$  \\
+    w_{act}     &  Weight for the activity, $\in \mathbb{R}_{\ge 0}$ 
+\end{conditions}
+
+The weights are a possibility to configure the algorithm for the needs of a network. The evaluation part will show the results of using different values.
+
+The \textbf{average activity} will be zero for the first episode, because the inspector does not have information about the traffic of such a node.  
+
+\subsubsection{Selection probability}
+
+The probability to be selected as a SpeedCam depends on the previously calculated candidate score, $cs(n)$ \autoref{equo:candidateScore}. It is calculated for all nodes inside the network and assigned to the node itself for that episode. With that information, the probability can be calculated and assigned to the node with:
+
+\begin{equation}
+P_{sc}(n) = \frac{cs(n)}{\text{max}(cs(N))}
+\end{equation}
+where:
+\begin{conditions}
+    N           &  All nodes inside the network 
+\end{conditions}
+
+\subsubsection{Selection size}
+\todo{Graphen-paare zeichnen mit jeweils sovielen nodes, wie der approach hergeben würde.}
+Now exists a list of candidates with an assigned probability to be selected based on their candidate score. The phase must now select $k$ \textit{SpeedCams} from this set. The size of $k$ should scale with the network size $|N|$, but as discussed earlier it should be as small as possible. There are a few scales, which were inspected in this work:
+
+\textbf{Constant} [ $K$ ]: A constant amount of nodes will be selected, ignoring the size of the network. This is usable for static networks, where $|N|$ is known and does not change, but that applies only to very few networks\todo{quelle dafür finden}. Because of this, a constant value for K will not be evaluated in this work.
+
+\textbf{Logarithmic} [ $log(|N|)$ ]: A logarithmic amount of SpeedCams will scale nicely with any network and it was the first idea for this approach. After the first tests it was shown, that too few SpeedCams were operating and the accuracy of the monitoring was too low. This will be show in \autoref{chap:eva}.
+
+\textbf{Linear} [ $x\cdot |N|, 0 \leq x\ll1$ ]: A linear amount of SpeedCams will need more resources as the logarithmic approach, but will also raise the accuracy to sufficient levels.\todo{Umschreiben!} The factor $x$ must be much-less than 1, otherwise the inspector will utilize half the network and this contradicts the goal to use as few resources as possible. The evaluation will use $x=0.1$, $x=0.2$ and $x=0.33$.
+
+\newpage
+\subsubsection{Select SpeedCams}
+
+The selection of SpeedCam from the candidates itself is a forward process. Iterate over all nodes, generate a random number\footnote{It is sufficient for this work to use a weak pseudo random generator} from 0 to 1 (exclusive) $p$ and if $P_{sc}(n) \geq p$, than add the node $n$ to the selected set. The iteration if over, when there enough speed cams are selected.
+
+The order of the candidates matters, because $k$ limits the size of the target set. This problem is shown in \autoref{fig:main:candidateSelectionOrder}. In \autoref{fig:main:selectionSorted} they are sorted by their probability. The loop starts at candidate with the highest probability. The chance, that $p$ is high enough that $n$ is selected, is higher for later $n$. Concluding from this, the chance for $n=3$ to become a SpeedCam is lower in case \autoref{fig:main:selectionSorted} than in the case \autoref{fig:main:selectionUnsorted}. Because of time constrains for this work, this change is not evaluated. \todo{Vielleicht doch noch?}
+\begin{figure}[h]
+    \begin{subfigure}{.45\linewidth}
+        \centering
+        \includegraphics[trim={3mm 3mm 3mm 3mm},clip,width=0.8\textwidth]{selectUnsortedPlot.pdf}
+        \caption{Unsorted}
+        \label{fig:main:selectionUnsorted}
+    \end{subfigure}%
+    \begin{subfigure}{0.45\linewidth}
+        \centering
+        \includegraphics[trim={3mm 3mm 3mm 3mm},clip,width=0.8\textwidth]{selectSortedPlot.pdf}
+        \caption{Sorted by probability}
+        \label{fig:main:selectionSorted}
+    \end{subfigure}
+    \caption{Example of detection scheme}
+    \label{fig:main:candidateSelectionOrder}
+\end{figure}
+
+The selection phase ends with a set of $k$ nodes, which are functioning for the next phases as \textbf{SpeedCams}.
 
 \section{Detection scheme}
 This part will contain the description about the detection scheme. It will outline how to detect a greedy user and provide a detailed overview of its functionality.

@@ -10,6 +10,12 @@
 \usepackage[labelfont=bf]{caption} % font=small,  ?
 \usepackage{acronym}
 \usepackage{amsmath}
+\usepackage{amssymb}
+
+\newenvironment{conditions}
+{\par\vspace{\abovedisplayskip}\noindent\begin{tabular}{>{$}l<{$} @{${}={}$} l}}
+    {\end{tabular}\par\vspace{\belowdisplayskip}}
+
 \usepackage{marvosym}
 \usepackage[pdftex]{graphicx}
 \usepackage[table]{xcolor} % table argument allows color cells
@@ -111,6 +117,9 @@
 }
 
 \usetikzlibrary{arrows.meta}
+
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.15}
 \begin{document}
 
 % Undef subfilebib for main file, so there is only one bibliography when compiling the whole thesis.
