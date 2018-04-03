@@ -1,7 +1,7 @@
 \documentclass[thesis.tex]{subfiles}
 \begin{document}
 
-\chapter{SpeedCam}\label{chap:basics}
+\chapter{SpeedCam}\label{chap:main}
 
 This chapter will describe the three following parts. At first it will outline the general idea of the SpeedCam approach for any network type. After this it will describe the specific adaptation for the SCION network. At last there will be an explanation what has to be changed for SCIONLab and the reason for that.
 
@@ -9,7 +9,7 @@ This chapter will describe the three following parts. At first it will outline t
 SpeedCam is an heuristic approach to monitor network traffic with regards to limited resources. It analyses the network structure and decided based on the heuristic where are good places to monitor local traffic. The approach also tries to reduce the necessary amount of probes to minimize the resource impact an the machines.
 
 
-\subsection{Inspection game}
+\section{Inspection game}
 The idea behind SpeedCam is based on the \textit{Inspection Game} in the game theory \todo{Quelle einfügen}. Inside the game is a \textit{task} to be done under defined \textit{rules}. The execution of the task can be simpler, more efficient or more effective with a violation of these rules. The task is performed by one of the two parties, the \textit{inspectee} and the compliance of the rules costs resources and is monitored by the second party, the \textit{inspector}. The inspectee has a general interest to break the rules to perform better, while the inspector wants to reduce his amount of inspections to use as few as possible resources. The possible combination are shown in \autoref{tab:inspectionGameMatrix}.
 
 \begin{table}[h]
@@ -29,7 +29,7 @@ The cases $B$ and $C$ are good investments of the inspectors limited resources. 
 Because of the shown cases and it results it is obvious that a \textit{pure strategy} doesn't make sense in this game. When the inspector always inspect he will waste resources and when the inspector always ignores he fails his task. Instead of a pure strategy there must exist a \textit{mixed strategy} defined by probabilities for each action to be chosen. \todo{Quelel für Nash Beweis}.
 
 
-\subsection {Generalized concept}
+\section {Generalized concept} \label{sec:main:generalconcept}
 The previously described form of the Inspection game is adopted for networks for this work. The \textit{nodes} of a network are the \textit{inspectees}, their \textit{task} is to \textit{transfer} many data in a short time. The \textit{rule} for all nodes is, that a transaction of data \textit{mustn't exceed the link limits} or disturb other nodes transfer. These limits can be given by the physical cable nature or are artificial bilateral agreed limits. A \textit{detected violation} of these rules can result in throttling the bandwidth or even exclude the node from the node, temporary or permanently. A node can try to exceed the limits and so breaking the rule, while avoiding any inspection. 
 
 The \textit{inspector} in such a game has the possibility to monitor a nodes network traffic. Monitoring a node costs computation resources such as memory or cpu cycles\todo{Quelle für Leistungsaufwand von switches nur für switching}. Both can be critical for a switch to send packets. Therefore an inspection, necessary or not, will have an impact on the network throughput. The challenge of the inspector is to only monitor when a node is exceeding its limits. He will be presented in this work as the SpeedCam approach. These will give the inspector an heuristic with the goal to increase the amount of cases for $B$ and $C$ and to reduce it for $A$ (not wasting resources) and $D$ (fairness for network member).
@@ -91,7 +91,7 @@ A better solution is to introduce an entropy to the selection process. Instead o
 
 The SpeedCam approach uses a candidate score $cs(n)$ to determine the probability of each node to be chosen. While not guaranteed to be chosen, the chance to be a probe is higher for a good candidate than for a bad candidate. This process will result in a high quality while also being not fully deterministic. The following will describe how this candidate score is composed of.
 
-\subsubsection{Selection criteria}
+\subsubsection{Criteria}
 The following presented criteria are considered \textbf{static} and can be calculated without a history of past measurements. They require the topology of the network.
 
 \textbf{Degree} [ $deg(n)$ ]: The sum of incoming and outgoing links of node. This criteria represents the potential for a good transfer hub and can be used by other nodes as a central transfer hub. The higher the degree of a node, the higher the possibility to monitor a great range of traffic sources. A node on the edge of the network, a sink, has a low degree, mostly 1. These are uninteresting because they can only monitor the traffic of this node. A good real example for a node with a high degree are the nodes of submarine cables, as shown here\footnote{\url{https://www.submarinecablemap.com}, 02.04.2018}. They have the ability to connect two continents with each other and provide so a good point to measure traffic.
@@ -130,7 +130,7 @@ The weights are a possibility to configure the algorithm for the needs of a netw
 
 The \textbf{average activity} will be zero for the first episode, because the inspector does not have information about the traffic of such a node.  
 
-\subsubsection{Selection probability}
+\subsubsection{Probability}
 
 The probability to be selected as a SpeedCam depends on the previously calculated candidate score, $cs(n)$ \autoref{equo:candidateScore}. It is calculated for all nodes inside the network and assigned to the node itself for that episode. With that information, the probability can be calculated and assigned to the node with:
 
@@ -142,7 +142,7 @@ where:
     N           &  All nodes inside the network 
 \end{conditions}
 
-\subsubsection{Selection size}
+\subsubsection{SpeedCam amount}
 \todo{Graphen-paare zeichnen mit jeweils sovielen nodes, wie der approach hergeben würde.}
 Now exists a list of candidates with an assigned probability to be selected based on their candidate score. The phase must now select $k$ \textit{SpeedCams} from this set. The size of $k$ should scale with the network size $|N|$, but as discussed earlier it should be as small as possible. There are a few scales, which were inspected in this work:
 
@@ -177,6 +177,26 @@ The order of the candidates matters, because $k$ limits the size of the target s
 
 The selection phase ends with a set of $k$ nodes, which are functioning for the next phases as \textbf{SpeedCams}.
 
+\subsection{Monitoring}
+The monitoring uses the set of nodes from the Selection phase, which are now called SpeedCams. They have the task to log the transferred traffic over a timespan from $t_1$ to $t_2$. At the end of that timespan, they need to report the results to the inspector. There are different resolution for the logged traffic, which are discussed in the following:
+
+\todo{Graphen zeichnen und die verschiedenen typen aufzeichnen}
+The lowest resolution is to summarize the in- and outgoing traffic of the node. This resolution is simple to implement and produces the smallest amount of footprint, because it needs only one counter per node. But it leaks in details and limits the possibility of the SpeedCam.
+
+The next resolution is higher and logs the traffic per link separately. The advantage over the previous resolution is that it is not only possible to log the activity of the node itself by aggregating all link traffics. It gives the possibility to also log a fraction of traffic from the neighbours node. The disadvantage is that each link has to be monitored and there is a counter needed for each link. This results in a higher footprint.
+
+A higher resolution of the monitoring is achievable by also looking at a packets metadata. The previously resolutions only aggregates the packet sizes, while this packets inspection enables the SpeedCam to construct flows. With that information it is possible to not only reconstruct the neighbours traffic, but also the sender and receiver traffic. This approach has a higher footprint, because it needs to count the traffic for each node pair.
+
+The choice of resolution is based on the amount of available computation power and the possibilities of the network type itself. The current Internet uses the OSI layer \todo{Quelle} and when the inspector is using the application layer, it cannot access the necessary information for higher resolutions. The chosen resolution for this work is explained in \autoref{sec:main:scionimpl}.
+
+The results of the SpeedCams are sent to the inspector and will be processed by him in the next phase, the conclusion.
+
+\subsection{Conclusion}
+The conclusion uses the information from the monitoring phase about the logged traffic from the SpeedCams. The goal of that phase is to aggregate the traffic and reconstruct the flow inside the network to identify a misseuse of network resources.
+
+
+
+\section{Implementation in SCION} \label{sec:main:scionimpl}
 \section{Detection scheme}
 This part will contain the description about the detection scheme. It will outline how to detect a greedy user and provide a detailed overview of its functionality.
 
