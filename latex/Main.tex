@@ -192,11 +192,56 @@ The choice of resolution is based on the amount of available computation power a
 The results of the SpeedCams are sent to the inspector and will be processed by him in the next phase, the conclusion.
 
 \subsection{Conclusion}
-The conclusion uses the information from the monitoring phase about the logged traffic from the SpeedCams. The goal of that phase is to aggregate the traffic and reconstruct the flow inside the network to identify a misseuse of network resources.
+The conclusion uses the information from the monitoring phase about the logged traffic from the SpeedCams. The goal of that phase is to aggregate the traffic and reconstruct the flow inside the network to identify a misuse of network resources. It also back feeds the results to the graph and ends the episode.
 
+The inspector receives the measured traffics from the SpeedCams and aggregates them in such a way, that the inspector can add them to the corresponding node. After this assignment, the inspector decides, which node violated the rules. To do so, he needs to classify the users, which is described in the following:
 
+The classification of the a node depends on two factors: The first one is if the inspectee violated the rule and overused its limits. The second one is if there was a \textit{congestion} inside the network, so that one node was constantly at its bandwidth limit and unable to fulfil its task. The resulting cases are shown in \autoref{tab:classifyUser}.
+
+\begin{table}[h]
+    \centering
+    \begin{tabular}{ r|c|c| }
+        \multicolumn{1}{r}{}
+        &  \multicolumn{1}{c}{no congestion}
+        & \multicolumn{1}{c}{congestion} \\
+        \cline{2-3}
+        stays in limit & I & II \\
+        \cline{2-3}
+        overuses limit & III & IV \\
+        \cline{2-3}
+    \end{tabular}
+    \caption{Classification of a node}
+    \label{tab:classifyUser}    
+\end{table}
+
+\subsubsection{Case I - Fair} \label{sub:main:detection:case1}
+This node uses fewer bandwidth than he has subscribed to and doesn't violate the rule. There is also no congestion inside the network. In this case, there is no need to punish the user. They could use even more bandwidth, because the network is currently underutilized and possible bandwidth is wasted.
+
+\subsubsection{Case II - Global greedy}
+In this case there is a congestion inside the network. The currently used bandwidth is higher than the available. But there is not any node which violated the rule. This results in a global greedy behaviour of all nodes, because their cumulative task needed more resources than were available.  Because of the missing culprit the punishment is not as easy as in case 4.
+
+It is possible to resolve this case for future episode by identifying the nodes with the highest bandwidth and to plea them not using so much resources. They can identified by \textit{clustering-algorithm}, such as \textit{Jenks Natural Breaks}\todo{Quelle dafür}. This would be a type of \textit{load-balancing}, but it is in a network difficult to realize. The nodes owner maybe paid for the subscribed bandwidth and will ignore to such a plea. All in all it is only possible to identify the global greedy nodes, but it is outside this work to go into detail.
+
+\todo{Add figure to display the issue}
+
+\subsubsection{Case III - Overusing with no congestion}
+This case occurs when there is no congestion, but a  node uses more bandwidth than it has subscribed for. For example, a node has only a subscription for 1 GBit/s, but uses 1.2 GBit/s. The difference to case IV is, that beside overusing, it does not result in a congestion.
+
+On the one hand this behaviour can quickly lead to a congestion when every node behaves like this. On the other hand this behaviour utilizes the bandwidth in a better way, because otherwise the unused capacity would be wasted.
+
+The node is classified as greedy, but do not need to be punished immediately. A better way would be to tolerate a certain percentage of overuse and punish the user if he uses more than tolerated. The tolerance range would be 10\% without any problems. If the node uses more than 110\% of its bandwidth the node should be handled as in case IV user and receive a delayed punishment.
+
+\todo{Add line graph to visualize this part}
+
+\subsubsection{Case IV - Overuse resulted in a congestion}
+The inspectee violated the limits and caused maybe with that behaviour a congestion. This node should be punished to prevent this in future episodes.
+
+\subsection{Repeat}
+
+The previous described phases are to be repeated over time. The interval to do so is also important. 
 
 \section{Implementation in SCION} \label{sec:main:scionimpl}
+
 \section{Detection scheme}
 This part will contain the description about the detection scheme. It will outline how to detect a greedy user and provide a detailed overview of its functionality.
 
@@ -475,61 +520,6 @@ When a new inspector is implemented inside an ISD, he has to construct the topol
 \subsection{Classify user}
 This part will explain what a greedy user is and how to distinguish between a greedy and a normal user. It contain a definition for this work, which will later be used.
 
-A greedy user is a user, who uses his network resources as the bandwidth in a selfish way and tries to maximize his personal benefit by using as much bandwidth as possible. He even may try to overuses his subscribed bandwidth or avoid the limits by using multi path communication.
-
-An user may also be classified as a more greedy user than a fair user, when here is a congestion in the network and this user uses the most bandwidth. He may not be acting greedy in the first place, but he can be considered greedy in a global view.
-
-Because of this we have to view two aspects which can classify a user as greedy. The first is the use of his resources. He can stay in the limit or he can overuse it. The second is if his activity causes a congestion.
-\begin{table}[h]
-    \centering
-    \begin{tabular}{ r|c|c| }
-        \multicolumn{1}{r}{}
-        &  \multicolumn{1}{c}{no congestion}
-        & \multicolumn{1}{c}{congestion} \\
-        \cline{2-3}
-        stays in limit & I & II \\
-        \cline{2-3}
-        overuses limit & III & IV \\
-        \cline{2-3}
-    \end{tabular}
-    \caption{Different cases of a greedy user}
-    \label{tab:classifyUser}    
-\end{table}
-
-\autoref{tab:classifyUser} shows these different four cases. The stays im limit or overuses limit means only the bandwidth usage of one connection between two ASes. An AS can have multiple connection to different ASes and can stay in his local limits.
-
-\subsubsection{Case I - Fair user} \label{sub:main:detection:case1}
-This user uses fewer bandwidth than he has subscribed to. There is also no congestion inside the network. In this case, there is no need to punish the user. They could use even more bandwidth, because it is currently underutilized and wasted.
-
-\subsubsection{Case II - Global greedy user}
-In this case there is a congestion inside the network. The currently used bandwidth is higher than the available. But there is no user who uses more bandwidth than he has subscribed to. Because of the missing culprit the punishment is not as easy as in case 4.
-
-There is a need to find the most greedy user and try to convince him to use less resources for a better network experience for every user. The problem is, to find the most greedy user and to distinguish him from other user.
-
-This can be done by using a clustering algorithm to find user with a similar behaviour. The cluster algorithm needs to find the outlier using more bandwidth than other. It also has to perform well with bigger sizes of elements, any $log(n^2)$ or worse runtime complexity is not sufficient. Because of using only the bandwidth as an attribute, it is possible to use algorithm based on arrays or lists of values, which results in simpler and more efficient algorithm.
-
-The algorithm used for this work is the \textit{Jenks Natural Breaks} algorithm. \todo{Add good source}
-%, Jenks Natural Breaks: https://www.ehdp.com/vitalnet/breaks-1.htm, http://wiki.objectvision.nl/index.php/Fisher\%27s_Natural_Breaks_Classification
-It is applied to a sorted list of values and find good fitting ranges with also a rating value from 0 (worst fit) to 1 (perfect fit). Originally used for creating chloropleth maps, it can be used to divide the amount of users into two groups: fair user and user with high bandwidth usage. 
-
-\todo{Explain the algorithm?}
-
-If the GVF is higher than 0.8 we can assume, that the second range describes user who uses more bandwidth than the other. The member in this range can be considered as more greedy user than the other.
-
-
-\todo{Add figure to display the issue}
-
-\subsubsection{Case III - Overusing with no congestion}
-This case occurs when there is no congestion, but an AS uses more bandwidth than it has subscribed for. For example, an AS has only a subscription for 1 GBit/s, but uses 1.2 GBit/s. The difference to case IV is, that beside overusing, there is no congestion.
-
-On the one hand this behaviour can quickly lead to a congestion when everybody is doing it. On the other hand this behaviour utilizes the bandwidth in a better way, because the wasted bandwidth by not using it is lower.
-
-The user can be clearly considered as greedy, but do not need to be punished immediately. A better way would be to tolerate a certain percentage of overuse and punish the user if he uses more than tolerated. The tolerance range would be 10\% without any problems. If the AS uses more than 110\% of its bandwidth the AS should be considered as a greedy user and receive a delayed punishment.
-
-\todo{Add line graph to visualize this part}
-
-\subsubsection{Case IV - Overuse resulted in a congestion}
-This case is much more simpler than the other. If there is a congestion any user who overuses his bandwidth is considered a greedy user and have to receive immediately punishment to reduce or stop the congestion. 
 
 \section{Next parts}
 \begin{easylist}
