@@ -238,7 +238,16 @@ The inspectee violated the limits and caused maybe with that behaviour a congest
 
 \subsection{Repeat}
 
-The previous described phases are to be repeated over time. The interval to do so is also important. 
+\todo{Timeline example - 3 stück nebeneinander, im hintergrund ein verlauf des traffics}
+The previously described phases need to be repeated in a certain interval. As with the other phases, there are several different strategies possible.
+
+A \textit{fixed interval} with an endless repeat mode is the first one. The inspector starts the inspection every $t$ time unit and gets a constant stream of information about the network traffics. The precision of the inspection depends on the size of the interval, the smaller the interval is, the higher is the precision. But also increases/decreases the resource impact. This strategy gives also the possibility for the inspectees to recognize this pattern and adapt.
+
+A \textit{randomly chosen} time schedule prevents this problem. The inspector starts an inspection non-deterministic a few times over a given timespan, like a day or week. This decreases the precision of the measurement, because the interval changes randomly. The inspector looses the possibility to improve his selection quality by using the time profiles. This strategy can also waste the inspector resources, when the inspection is randomly chosen at a point of time with nothing happening of interest.
+
+Bases on the previous strategy the inspector can also utilize his knowledge about past episodes and prefer an inspection at time spans when a congestion happened in the past. This \textit{experience based} strategy yields the risk to find only a local optimum instead of a global one. The risk to get stuck in such a local optimum can be reduced by limiting the length of the history to give new inputs a chance to be recognized. 
+
+The next parts will describe the changes from a general network to SCION itself.
 
 \section{Implementation in SCION} \label{sec:main:scionimpl}
 
