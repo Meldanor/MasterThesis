@@ -51,7 +51,7 @@ One run of the SpeedCam approach is called an \textit{episode} and is broken dow
 
 The exploration phase is the 0-th phase because it can be skipped if the network is static and fully explored. This phase can also be running in the background in parallel to the other phases. Phase 1 to 3 must be running in sequential order, because they depend on each other results. The next sections will explain each phase in detail.
 
-\subsection{Exploration}
+\subsection{Exploration} \label{sec:main:explorationphase}
 This phase has the goal to create an undirected graph of the network to monitor. The structure of the network is necessary for the following phases. 
 
 For the general concept of the SpeedCam approach exists multiple possibilities to explore the underlying network. Because the only assumption about the network is that nodes are connected via links these possibilities are also general and has some flaws. In later discussed specialized forms of the SpeedCam approach there are fewer flaws.
@@ -91,7 +91,7 @@ A better solution is to introduce an entropy to the selection process. Instead o
 
 The SpeedCam approach uses a candidate score $cs(n)$ to determine the probability of each node to be chosen. While not guaranteed to be chosen, the chance to be a probe is higher for a good candidate than for a bad candidate. This process will result in a high quality while also being not fully deterministic. The following will describe how this candidate score is composed of.
 
-\subsubsection{Criteria}
+\subsubsection{Criteria} \label{sec:main:selectionPhase:criteria}
 The following presented criteria are considered \textbf{static} and can be calculated without a history of past measurements. They require the topology of the network.
 
 \textbf{Degree} [ $deg(n)$ ]: The sum of incoming and outgoing links of node. This criteria represents the potential for a good transfer hub and can be used by other nodes as a central transfer hub. The higher the degree of a node, the higher the possibility to monitor a great range of traffic sources. A node on the edge of the network, a sink, has a low degree, mostly 1. These are uninteresting because they can only monitor the traffic of this node. A good real example for a node with a high degree are the nodes of submarine cables, as shown here\footnote{\url{https://www.submarinecablemap.com}, 02.04.2018}. They have the ability to connect two continents with each other and provide so a good point to measure traffic.
@@ -177,7 +177,7 @@ The order of the candidates matters, because $k$ limits the size of the target s
 
 The selection phase ends with a set of $k$ nodes, which are functioning for the next phases as \textbf{SpeedCams}.
 
-\subsection{Monitoring}
+\subsection{Monitoring} \label{sec:main:monitoringphase}
 The monitoring uses the set of nodes from the Selection phase, which are now called SpeedCams. They have the task to log the transferred traffic over a timespan from $t_1$ to $t_2$. At the end of that timespan, they need to report the results to the inspector. There are different resolution for the logged traffic, which are discussed in the following:
 
 \todo{Graphen zeichnen und die verschiedenen typen aufzeichnen}
@@ -245,11 +245,26 @@ A \textit{fixed interval} with an endless repeat mode is the first one. The insp
 
 A \textit{randomly chosen} time schedule prevents this problem. The inspector starts an inspection non-deterministic a few times over a given timespan, like a day or week. This decreases the precision of the measurement, because the interval changes randomly. The inspector looses the possibility to improve his selection quality by using the time profiles. This strategy can also waste the inspector resources, when the inspection is randomly chosen at a point of time with nothing happening of interest.
 
-Bases on the previous strategy the inspector can also utilize his knowledge about past episodes and prefer an inspection at time spans when a congestion happened in the past. This \textit{experience based} strategy yields the risk to find only a local optimum instead of a global one. The risk to get stuck in such a local optimum can be reduced by limiting the length of the history to give new inputs a chance to be recognized. 
+Another strategy is to utilize the knowledge of past episodes and the course of the traffic over a day. The inspector can check, if there are timestamps when the the traffic is usually high, for example in the evening for consumer \todo{Quelle für diesen Fakt finden}. This strategy is \textit{experiences based} and has the same advantages and issues as the \textbf{activity} criteria from \autoref{sec:main:selectionPhase:criteria}. A longer history enables more precise decision, but a too long history can hold outdated information. Also is a purely experienced based strategy vulnerable to get stuck in a local optima. This convergence can be avoided by using a chance to pick a non optimal timestamp to learn something new.
 
-The next parts will describe the changes from a general network to SCION itself.
+\subsection{Summary}
+This section described the SpeedCam approach for general network and the different strategies. It is designed to work on any network, but quite so it lacks of necessary answers for questions like "Which components enables the inspector to measure traffic?" or "What protocols are necessary to exchange the monitored information?". The following section will show the example implementation in SCION and the section after especially for SCIONLab.
 
 \section{Implementation in SCION} \label{sec:main:scionimpl}
+
+This section will outline the implementation of the general concept as discussed in \autoref{sec:main:generalconcept}. SCION is under heavy development and hasn't reached a long-term-support (LTS) version yet. So it is necessary to mention, that the implementation was done with the version  24d2e97909599bf35dcbf6308aa2302610cf9689 from 2018-02-07T17:03:35Z. 
+
+\subsection{Differences}
+
+There are for this work interesting differences from the general networks to SCIONs structure. They will be shown in this part and used later for changes inside the phases. The nodes or inspectees will be now called ASes, because they are named so in SCION.
+
+The first difference is, that there are core ASes inside one ISD. They are forming the core of an ISD and provides information about its structure. An AS which wants to find a path for his data sends a path-request to a core AS. The request responds contains up-down paths \todo{Bezeichnungen in SCION finden} from the source to the target AS. It is currently possible to log the path-server's requests. This information about active paths inside an ISD is useful for the exploration phase (\autoref{sec:main:explorationphase}), because it enables the inspector reconstruct the graph by adding all paths. There is no need to implement a graph exploring algorithm.
+
+Based on that difference, the Core is a good place to insert the inspector. It needs to has access to the ISD and its structure and this is one of the tasks of the core. It would also be the place to enforce the policy, that the member of that ISD can be monitored and eventually be punished. 
+
+Another useful difference is that an AS creates a new border router instance for each new link. Each instance collects the traffic metrics with the library Prometheus and provides them with a simple HTTP based protocol. The URL for the call can be bind to an open and externally accessible network interface. This fact simplifies the necessary implementation for the monitoring phase (\autoref{sec:main:monitoringphase}). It is also enables the resolution of link-based traffic, because each border router is responsible for one link. The work of Foster\cite{Forster.September2017} would count the bandwidth efficiently with a very small footprint, but until the used version his changes were not merged. 
+
+The structure of SCION with ISD gives the possibility to split the responsibility for the inspection into multiple region, for example one inspector for each ISD. While this was not implemented in this work, this would obviously increase the scalability of the SpeedCam approach.
 
 \section{Detection scheme}
 This part will contain the description about the detection scheme. It will outline how to detect a greedy user and provide a detailed overview of its functionality.
