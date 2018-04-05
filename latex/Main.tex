@@ -62,7 +62,7 @@ Another possibility needs a start point inside the network. With such a start po
 
 The exploration phase itself needs to be constantly repeated to react to changes inside the network. Inactive or disconnected nodes doesn't need to be monitored.
 
-\subsection{Selection}
+\subsection{Selection} \label{sec:main:selectionPhase}
 
 Based on the results of the previous exploration phase, the selection phase uses the network information and returns a set of nodes to monitor. This phase uses the heuristic. It has to estimate in advance if the node will transfer any traffic.
 
@@ -153,7 +153,7 @@ Now exists a list of candidates with an assigned probability to be selected base
 \textbf{Linear} [ $x\cdot |N|, 0 \leq x\ll1$ ]: A linear amount of SpeedCams will need more resources as the logarithmic approach, but will also raise the accuracy to sufficient levels.\todo{Umschreiben!} The factor $x$ must be much-less than 1, otherwise the inspector will utilize half the network and this contradicts the goal to use as few resources as possible. The evaluation will use $x=0.1$, $x=0.2$ and $x=0.33$.
 
 \newpage
-\subsubsection{Select SpeedCams}
+\subsubsection{Select SpeedCams} \label{sec:main:selectionPhase:selecting}
 
 The selection of SpeedCam from the candidates itself is a forward process. Iterate over all nodes, generate a random number\footnote{It is sufficient for this work to use a weak pseudo random generator} from 0 to 1 (exclusive) $p$ and if $P_{sc}(n) \geq p$, than add the node $n$ to the selected set. The iteration if over, when there enough speed cams are selected.
 
@@ -264,7 +264,34 @@ Based on that difference, the Core is a good place to insert the inspector. It n
 
 Another useful difference is that an AS creates a new border router instance for each new link. Each instance collects the traffic metrics with the library Prometheus and provides them with a simple HTTP based protocol. The URL for the call can be bind to an open and externally accessible network interface. This fact simplifies the necessary implementation for the monitoring phase (\autoref{sec:main:monitoringphase}). It is also enables the resolution of link-based traffic, because each border router is responsible for one link. The work of Foster\cite{Forster.September2017} would count the bandwidth efficiently with a very small footprint, but until the used version his changes were not merged. 
 
-The structure of SCION with ISD gives the possibility to split the responsibility for the inspection into multiple region, for example one inspector for each ISD. While this was not implemented in this work, this would obviously increase the scalability of the SpeedCam approach.
+The structure of SCION with ISD gives the possibility to split the responsibility for the inspection into multiple region, for example one inspector for each ISD. This will improve the scalability of the Inspector, but implementing it as a decentralized component would go beyond the scope of this work.
+
+The next section will give an overview about the implementation using SCION as its network without going into detail about code fragments. Any approaches or algorithms in the implementation were explained in previous section and the posting of Go code fragments do not yield any additional advantage, when they can be found on the repository itself.
+
+\section{Implementation in SCIONLab} \label{sec:main:scionlabimpl}
+
+The implementation\footnote{\url{https://github.com/Meldanor/SCIONLab_SpeedCam}, 05.04.2018} was mostly written in Go\footnote{\url{https://golang.org}, 05.04.2018} 1.9. SCION itself and most of its component are written in Go and because of that is made sense to also write the implementation in Go. The amount of components very specific to Go is limited and was written in an object-oriented way to be portable to other programming languages. It also uses as few SCION dependencies as possible to be lightweight and flexible to use. The implementation is sufficient enough for this work and should not be used in its current state in a production environment, but it can be used as a base for a production ready application. The documentation for this program can be found in the README.md of the project as also in the appendix.\todo{Add usage as appendix}.
+
+The Prometheus metrics are published via a REST resource. Therefore, the inspector needs to know the URL of the border router. This information is stored on the AS itself and not externally available for security reasons. The solution for this problem was to create two components. The first one is a script written by Kwon, Jonghoon to parse the border router configuration file and extracts the Prometheus URL. The script itself is deployed to each AS. This information is send to the second component, the \textbf{S}peed\textbf{C}am\textbf{P}rometheus\textbf{B}ridge (SCPB) server program\footnote{\url{https://github.com/Meldanor/SCPB}, 05.04.2018}. This in Java written application is a RESTful service to receive and serve information about Prometheus clients. It was originally written to add monitoring targets to the local running Prometheus server. In the progress of this thesis it was extended to not only handle Prometheus client information, but also temporary store Path server requests and make them available to the inspector. This behaviour is shown in \autoref{fig:main:impl:explorePhaseDiagram}. (1.) The script is sending the border router information, (2.) another script\footnote{\url{https://github.com/Meldanor/SCIONLab_SpeedCam/blob/master/ps_request_parser/ps_request_parser.go}, 05.04.2018} parses the path server requests on a core AS and both send this data to the REST resources of SCPB. (3.) The inspector polls this data in an interval to (4.) update his network graph. The exploration phase is done asynchronously and repeats every minute.
+
+\begin{figure}
+	\centering
+	\includegraphics[width=0.7\textwidth]{uml_diagram_explorationPhaseSCIONLab.pdf}
+	\caption{Communication diagram - Exploration phase}
+	\label{fig:main:impl:explorePhaseDiagram}
+\end{figure}
+
+The selection phase, as shown in \autoref{fig:main:impl:selectionPhaseDiagram}, was implemented as described in \autoref{sec:main:selectionPhase}. The inspectors starts an episode and (1.) invokes the given selection strategy. Depending on the strategy it (2.) creates a set of probes by selecting the best candidates. The candidate score is missing the \textit{capacity} information about a link. There is an attribute assigned by SCION, but in SCIONLab it was set inconsistently and therefore was unreliable. Currently, SCION itself does not make use of this attribute. In conclusion the capacity is for each node 1 and the \textit{activity} is simply the average bandwidth of the link.
+The order of the candidates, as described in \autoref{sec:main:selectionPhase:selecting} does have an impact on the chance to be selected. This implementation uses the random order instead of the sorted, because there is no standard implementation of Go maps, which are sorted by there keys \cite{goMapsInAction.2013}.
+
+\begin{figure}
+	\centering
+	\includegraphics[width=0.7\textwidth]{uml_diagram_selectionPhaseSCIONLab.pdf}
+	\caption{Communication diagram - Selection phase}
+	\label{fig:main:impl:selectionPhaseDiagram}
+\end{figure}
+
+
 
 \section{Detection scheme}
 This part will contain the description about the detection scheme. It will outline how to detect a greedy user and provide a detailed overview of its functionality.
