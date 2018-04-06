@@ -38,18 +38,17 @@ The general concept of SpeedCam applies to types of networks which meet the foll
 
 When the requirements are met the inspector can be run as a component. He executes the SpeedCam approach and stores the necessary information about the nodes. It is described in this work as a centralized component, but it can be split into multiple inspectors each responsible for a subnetwork. 
 
-One run of the SpeedCam approach is called an \textit{episode} and is broken down in the following four phases:
-\todo{use graphic instead of list}
-\begin{easylist}
-    \MyNumberedListProperties
-    \ListProperties(Start1=0)
-    # Exploration
-    # Selection
-    # Monitoring
-    # Conclusion
-\end{easylist}
+One run of the SpeedCam approach is called an \textit{episode} and is broken down in four phases, as shown in \autoref{fig:main:phasesOrder}.
 
-The exploration phase is the 0-th phase because it can be skipped if the network is static and fully explored. This phase can also be running in the background in parallel to the other phases. Phase 1 to 3 must be running in sequential order, because they depend on each other results. The next sections will explain each phase in detail.
+\begin{figure}[!h]
+	\centering
+	\includegraphics[trim=5mm 1mm 0mm 1mm, clip, width=0.95\textwidth]{umldiagram_phasesOrder.pdf}
+	\caption{SpeedCam's phases}
+	\label{fig:main:phasesOrder}
+\end{figure}
+
+
+The exploration phase is the 0-th phase because it can be skipped if the network is static and fully explored. This phase can also be running in the background in parallel to the other phases. Phase 1 to 3 must be run in sequential order, because they depend on each other results. The next sections will explain each phase in detail.
 
 \subsection{Exploration} \label{sec:main:explorationphase}
 This phase has the goal to create an undirected graph of the network to monitor. The structure of the network is necessary for the following phases. 
@@ -143,7 +142,7 @@ where:
 \end{conditions}
 
 \subsubsection{SpeedCam amount}
-\todo{Graphen-paare zeichnen mit jeweils sovielen nodes, wie der approach hergeben würde.}
+
 Now exists a list of candidates with an assigned probability to be selected based on their candidate score. The phase must now select $k$ \textit{SpeedCams} from this set. The size of $k$ should scale with the network size $|N|$, but as discussed earlier it should be as small as possible. There are a few scales, which were inspected in this work:
 
 \textbf{Constant} [ $K$ ]: A constant amount of nodes will be selected, ignoring the size of the network. This is usable for static networks, where $|N|$ is known and does not change, but that applies only to very few networks\todo{quelle dafür finden}. Because of this, a constant value for K will not be evaluated in this work.
@@ -152,12 +151,270 @@ Now exists a list of candidates with an assigned probability to be selected base
 
 \textbf{Linear} [ $x\cdot |N|, 0 \leq x\ll1$ ]: A linear amount of SpeedCams will need more resources as the logarithmic approach, but will also raise the accuracy to sufficient levels.\todo{Umschreiben!} The factor $x$ must be much-less than 1, otherwise the inspector will utilize half the network and this contradicts the goal to use as few resources as possible. The evaluation will use $x=0.1$, $x=0.2$ and $x=0.33$.
 
-\newpage
+The difference scale effects are visualized in \autoref{fig:main:concept:scaling}. It represents the SCIONLab ISDs 1 and 2 in its current state. A red circle indicates, that this node is selected. The top row from a) to c) shows a network of ten nodes, while the bottom row from d) to f) expands this networks to 16 nodes. 
+
+\begin{figure}
+	\centering
+	\begin{subfigure}{.3\linewidth}
+		\centering
+		\begin{tikzpicture}
+			\tikzstyle{AS}=[circle,draw=black,scale=0.6]
+			\begin{scope}
+			\node[AS,draw=red] (1-11) at (0,0)   {1-11};
+			\node[AS] (1-12) at (-1,-1) {1-12};
+			\node[AS] (1-13) at (0,-1)  {1-13};
+			\node[AS] (1-14) at (1,-1)  {1-14};
+			\node[AS] (1-15) at (-1,-2) {1-15};
+			\node[AS,draw=red] (1-16) at (0,-2)  {1-16};
+			\node[AS] (1-17) at (1,-2)  {1-17};
+			\node[AS] (1-18) at (-1,-3) {1-18};
+			\node[AS] (1-19) at (0,-3)  {1-19};
+			\node[AS] (1-10) at (0,-4)  {1-10};
+			\end{scope}
+			
+			\path[-]    
+			(1-11) edge (1-12) 
+			(1-11) edge (1-13)
+			(1-11) edge (1-14)
+			(1-12) edge (1-13)
+			(1-12) edge (1-15)
+			(1-13) edge (1-16)
+			(1-14) edge (1-17)
+			(1-15) edge (1-18)
+			(1-16) edge (1-19)
+			(1-19) edge (1-10)
+			;
+		\end{tikzpicture}
+		\caption{Constant K=2, k=2}
+		\label{fig:main:concept:scaling:const1}
+	\end{subfigure}
+	\hfill
+	\begin{subfigure}{.3\linewidth}
+		\centering
+		\begin{tikzpicture}
+			\tikzstyle{AS}=[circle,draw=black,scale=0.6]
+			\begin{scope}
+			\node[AS,draw=red] (1-11) at (0,0)   {1-11};
+			\node[AS] (1-12) at (-1,-1) {1-12};
+			\node[AS] (1-13) at (0,-1)  {1-13};
+			\node[AS] (1-14) at (1,-1)  {1-14};
+			\node[AS] (1-15) at (-1,-2) {1-15};
+			\node[AS] (1-16) at (0,-2)  {1-16};
+			\node[AS] (1-17) at (1,-2)  {1-17};
+			\node[AS] (1-18) at (-1,-3) {1-18};
+			\node[AS] (1-19) at (0,-3)  {1-19};
+			\node[AS] (1-10) at (0,-4)  {1-10};
+			\end{scope}
+			
+			\path[-]    
+			(1-11) edge (1-12) 
+			(1-11) edge (1-13)
+			(1-11) edge (1-14)
+			(1-12) edge (1-13)
+			(1-12) edge (1-15)
+			(1-13) edge (1-16)
+			(1-14) edge (1-17)
+			(1-15) edge (1-18)
+			(1-16) edge (1-19)
+			(1-19) edge (1-10)
+			;
+		\end{tikzpicture}
+		\caption{Logarithmic, b=10}
+		\label{fig:main:concept:scaling:log1}
+	\end{subfigure}
+	\hfill
+	\begin{subfigure}{.3\linewidth}
+		\centering
+		\begin{tikzpicture}
+			\tikzstyle{AS}=[circle,draw=black,scale=0.6]
+			\begin{scope}
+			\node[AS,draw=red] (1-11) at (0,0)   {1-11};
+			\node[AS] (1-12) at (-1,-1) {1-12};
+			\node[AS] (1-13) at (0,-1)  {1-13};
+			\node[AS] (1-14) at (1,-1)  {1-14};
+			\node[AS] (1-15) at (-1,-2) {1-15};
+			\node[AS,draw=red] (1-16) at (0,-2)  {1-16};
+			\node[AS] (1-17) at (1,-2)  {1-17};
+			\node[AS] (1-18) at (-1,-3) {1-18};
+			\node[AS,draw=red] (1-19) at (0,-3)  {1-19};
+			\node[AS] (1-10) at (0,-4)  {1-10};
+			\end{scope}
+			
+			\path[-]    
+			(1-11) edge (1-12) 
+			(1-11) edge (1-13)
+			(1-11) edge (1-14)
+			(1-12) edge (1-13)
+			(1-12) edge (1-15)
+			(1-13) edge (1-16)
+			(1-14) edge (1-17)
+			(1-15) edge (1-18)
+			(1-16) edge (1-19)
+			(1-19) edge (1-10)
+			;
+		\end{tikzpicture}
+		\caption{Linear, x=0.33}
+		\label{fig:main:concept:scaling:lin1}
+	\end{subfigure}
+	
+	\begin{subfigure}{.3\linewidth}
+		\centering
+		\begin{tikzpicture}
+			\tikzstyle{AS}=[circle,draw=black,scale=0.6]
+			\begin{scope}
+			\node[AS,draw=red] (1-11) at (0,0)   {1-11};
+			\node[AS] (1-12) at (-1,-1) {1-12};
+			\node[AS] (1-13) at (0,-1)  {1-13};
+			\node[AS] (1-14) at (1,-1)  {1-14};
+			\node[AS] (1-15) at (-1,-2) {1-15};
+			\node[AS] (1-16) at (0,-2)  {1-16};
+			\node[AS] (1-17) at (1,-2)  {1-17};
+			\node[AS] (1-18) at (-1,-3) {1-18};
+			\node[AS] (1-19) at (0,-3)  {1-19};
+			\node[AS] (1-10) at (0,-4)  {1-10};
+			
+			\node[AS] (2-21) at (-3,0)   {2-21};
+			\node[AS,draw=red] (2-22) at (-2,-1)  {2-22};
+			\node[AS] (2-23) at (-3,-1)  {2-23};
+			\node[AS] (2-24) at (-2,-2)  {2-24};
+			\node[AS] (2-25) at (-3,-2)  {2-25};
+			\node[AS] (2-26) at (-2,-3)  {2-26};
+			\end{scope}
+			
+			\path[-]    
+			(1-11) edge (1-12) 
+			(1-11) edge (1-13)
+			(1-11) edge (1-14)
+			(1-12) edge (1-13)
+			(1-12) edge (1-15)
+			(1-13) edge (1-16)
+			(1-14) edge (1-17)
+			(1-15) edge (1-18)
+			(1-16) edge (1-19)
+			(1-19) edge (1-10)
+			
+			(1-11) edge (2-21)
+			(1-12) edge (2-22)
+			(2-21) edge (2-22)
+			(2-21) edge (2-23)
+			(2-22) edge (2-24)
+			(2-23) edge (2-25)
+			(2-23) edge (2-26)
+			(2-24) edge (2-26)
+			;
+		\end{tikzpicture}
+		\caption{Constant K=2, k=2}
+		\label{fig:main:concept:scaling:con2}
+	\end{subfigure}
+	\hfill
+	\begin{subfigure}{.3\linewidth}
+		\centering
+		\begin{tikzpicture}
+			\tikzstyle{AS}=[circle,draw=black,scale=0.6]
+			\begin{scope}
+			\node[AS,draw=red] (1-11) at (0,0)   {1-11};
+			\node[AS] (1-12) at (-1,-1) {1-12};
+			\node[AS] (1-13) at (0,-1)  {1-13};
+			\node[AS] (1-14) at (1,-1)  {1-14};
+			\node[AS] (1-15) at (-1,-2) {1-15};
+			\node[AS] (1-16) at (0,-2)  {1-16};
+			\node[AS] (1-17) at (1,-2)  {1-17};
+			\node[AS] (1-18) at (-1,-3) {1-18};
+			\node[AS] (1-19) at (0,-3)  {1-19};
+			\node[AS] (1-10) at (0,-4)  {1-10};
+			
+			\node[AS] (2-21) at (-3,0)   {2-21};
+			\node[AS] (2-22) at (-2,-1)  {2-22};
+			\node[AS] (2-23) at (-3,-1)  {2-23};
+			\node[AS] (2-24) at (-2,-2)  {2-24};
+			\node[AS] (2-25) at (-3,-2)  {2-25};
+			\node[AS] (2-26) at (-2,-3)  {2-26};
+			\end{scope}
+			
+			\path[-]    
+			(1-11) edge (1-12) 
+			(1-11) edge (1-13)
+			(1-11) edge (1-14)
+			(1-12) edge (1-13)
+			(1-12) edge (1-15)
+			(1-13) edge (1-16)
+			(1-14) edge (1-17)
+			(1-15) edge (1-18)
+			(1-16) edge (1-19)
+			(1-19) edge (1-10)
+			
+			(1-11) edge (2-21)
+			(1-12) edge (2-22)
+			(2-21) edge (2-22)
+			(2-21) edge (2-23)
+			(2-22) edge (2-24)
+			(2-23) edge (2-25)
+			(2-23) edge (2-26)
+			(2-24) edge (2-26)
+			;
+		\end{tikzpicture}
+		\caption{Logarithmic, b=10}
+		\label{fig:main:concept:scaling:log2}
+	\end{subfigure} 
+	\hfill
+	\begin{subfigure}{.3\linewidth}
+		\centering
+		\begin{tikzpicture}
+			\tikzstyle{AS}=[circle,draw=black,scale=0.6]
+			\begin{scope}
+			\node[AS,draw=red] (1-11) at (0,0)   {1-11};
+			\node[AS] (1-12) at (-1,-1) {1-12};
+			\node[AS] (1-13) at (0,-1)  {1-13};
+			\node[AS] (1-14) at (1,-1)  {1-14};
+			\node[AS] (1-15) at (-1,-2) {1-15};
+			\node[AS,draw=red] (1-16) at (0,-2)  {1-16};
+			\node[AS] (1-17) at (1,-2)  {1-17};
+			\node[AS] (1-18) at (-1,-3) {1-18};
+			\node[AS,draw=red] (1-19) at (0,-3)  {1-19};
+			\node[AS] (1-10) at (0,-4)  {1-10};
+			
+			\node[AS] (2-21) at (-3,0)   {2-21};
+			\node[AS,draw=red] (2-22) at (-2,-1)  {2-22};
+			\node[AS,draw=red] (2-23) at (-3,-1)  {2-23};
+			\node[AS] (2-24) at (-2,-2)  {2-24};
+			\node[AS] (2-25) at (-3,-2)  {2-25};
+			\node[AS] (2-26) at (-2,-3)  {2-26};
+			\end{scope}
+
+			\path[-]    
+			(1-11) edge (1-12) 
+			(1-11) edge (1-13)
+			(1-11) edge (1-14)
+			(1-12) edge (1-13)
+			(1-12) edge (1-15)
+			(1-13) edge (1-16)
+			(1-14) edge (1-17)
+			(1-15) edge (1-18)
+			(1-16) edge (1-19)
+			(1-19) edge (1-10)
+			
+			(1-11) edge (2-21)
+			(1-12) edge (2-22)
+			(2-21) edge (2-22)
+			(2-21) edge (2-23)
+			(2-22) edge (2-24)
+			(2-23) edge (2-25)
+			(2-23) edge (2-26)
+			(2-24) edge (2-26)
+			;
+		\end{tikzpicture}
+		\caption{Linear, x=0.33}
+		\label{fig:fig:main:concept:scaling:lin2}
+	\end{subfigure}  
+	\caption{Scaling strategies}
+	\label{fig:main:concept:scaling}
+\end{figure}
+
 \subsubsection{Select SpeedCams} \label{sec:main:selectionPhase:selecting}
 
 The selection of SpeedCam from the candidates itself is a forward process. Iterate over all nodes, generate a random number\footnote{It is sufficient for this work to use a weak pseudo random generator} from 0 to 1 (exclusive) $p$ and if $P_{sc}(n) \geq p$, than add the node $n$ to the selected set. The iteration if over, when there enough speed cams are selected.
 
-The order of the candidates matters, because $k$ limits the size of the target set. This problem is shown in \autoref{fig:main:candidateSelectionOrder}. In \autoref{fig:main:selectionSorted} they are sorted by their probability. The loop starts at candidate with the highest probability. The chance, that $p$ is high enough that $n$ is selected, is higher for later $n$. Concluding from this, the chance for $n=3$ to become a SpeedCam is lower in case \autoref{fig:main:selectionSorted} than in the case \autoref{fig:main:selectionUnsorted}. Because of time constrains for this work, this change is not evaluated. \todo{Vielleicht doch noch?}
+The order of the candidates matters, because $k$ limits the size of the target set. This problem is shown in \autoref{fig:main:candidateSelectionOrder}. In \autoref{fig:main:selectionSorted} they are sorted by their probability. The loop starts at candidate with the highest probability. The chance, that $p$ is high enough that $n$ is selected, is higher for later $n$. Concluding from this, the chance for $n=3$ to become a SpeedCam is lower in case \autoref{fig:main:selectionSorted} than in the case \autoref{fig:main:selectionUnsorted}. Because of time constrains for this work, this change is not evaluated.
 \begin{figure}[h]
     \begin{subfigure}{.45\linewidth}
         \centering
@@ -178,14 +435,126 @@ The order of the candidates matters, because $k$ limits the size of the target s
 The selection phase ends with a set of $k$ nodes, which are functioning for the next phases as \textbf{SpeedCams}.
 
 \subsection{Monitoring} \label{sec:main:monitoringphase}
-The monitoring uses the set of nodes from the Selection phase, which are now called SpeedCams. They have the task to log the transferred traffic over a timespan from $t_1$ to $t_2$. At the end of that timespan, they need to report the results to the inspector. There are different resolution for the logged traffic, which are discussed in the following:
+The monitoring uses the set of nodes from the Selection phase, which are now called SpeedCams. They have the task to log the transferred traffic over a timespan from $t_1$ to $t_2$. At the end of that timespan, they need to report the results to the inspector. There are different resolutions for the logged traffic, which are visualized in conceptually in \autoref{fig:main:concept:monitoring}. A red outline represents a probe and a blue color represents the possibility to measure traffic.
 
-\todo{Graphen zeichnen und die verschiedenen typen aufzeichnen}
-The lowest resolution is to summarize the in- and outgoing traffic of the node. This resolution is simple to implement and produces the smallest amount of footprint, because it needs only one counter per node. But it leaks in details and limits the possibility of the SpeedCam.
+\begin{figure}[h]
+	\centering
+	\begin{subfigure}{.3\linewidth}
+		\centering
+		\begin{tikzpicture}
+		\tikzstyle{AS}=[circle,draw=black,scale=0.6]
+		\node[AS,draw=red,fill=blue,text=white] (1-11) at (0,0) {1-11};
+		\node[AS] (1-12) at (-1,-1) {1-12};
+		\node[AS] (1-13) at (0,-1)  {1-13};
+		\node[AS] (1-14) at (1,-1)  {1-14};
+		\node[AS] (1-15) at (-1,-2) {1-15};
+		\node[AS] (1-16) at (0,-2)  {1-16};
+		\node[AS] (1-17) at (1,-2)  {1-17};
+		\node[AS] (1-18) at (-1,-3) {1-18};
+		\node[AS] (1-19) at (0,-3)  {1-19};
+		\node[AS] (1-10) at (0,-4)  {1-10};
 
-The next resolution is higher and logs the traffic per link separately. The advantage over the previous resolution is that it is not only possible to log the activity of the node itself by aggregating all link traffics. It gives the possibility to also log a fraction of traffic from the neighbours node. The disadvantage is that each link has to be monitored and there is a counter needed for each link. This results in a higher footprint.
+		\path[-]    
+		(1-11) edge (1-12) 
+		(1-11) edge (1-13)
+		(1-11) edge (1-14)
+		(1-12) edge (1-13)
+		(1-12) edge (1-15)
+		(1-13) edge (1-16)
+		(1-14) edge (1-17)
+		(1-15) edge (1-18)
+		(1-16) edge (1-19)
+		(1-19) edge (1-10)
+		;
+		\end{tikzpicture}
+		\caption{Node}
+		\label{fig:main:concept:monitoring:node}
+	\end{subfigure}
+	\hfill
+	\begin{subfigure}{.3\linewidth}
+		\centering
+		\begin{tikzpicture}
+		\tikzstyle{AS}=[circle,draw=black,scale=0.6]
+		\begin{scope}
+		\node[AS,draw=red] (1-11) at (0,0)   {1-11};
+		\node[AS] (1-12) at (-1,-1) {1-12};
+		\node[AS] (1-13) at (0,-1)  {1-13};
+		\node[AS] (1-14) at (1,-1)  {1-14};
+		\node[AS] (1-15) at (-1,-2) {1-15};
+		\node[AS] (1-16) at (0,-2)  {1-16};
+		\node[AS] (1-17) at (1,-2)  {1-17};
+		\node[AS] (1-18) at (-1,-3) {1-18};
+		\node[AS] (1-19) at (0,-3)  {1-19};
+		\node[AS] (1-10) at (0,-4)  {1-10};
+		\end{scope}
+		
+		\path[-]    
+		(1-11) edge[draw=blue, style=thick] (1-12) 
+		(1-11) edge[draw=blue, style=thick] (1-13)
+		(1-11) edge[draw=blue, style=thick] (1-14)
+		(1-12) edge (1-13)
+		(1-12) edge (1-15)
+		(1-13) edge (1-16)
+		(1-14) edge (1-17)
+		(1-15) edge (1-18)
+		(1-16) edge (1-19)
+		(1-19) edge (1-10)
+		;
+		\end{tikzpicture}
+		\caption{Link}
+		\label{fig:main:concept:monitoring:link}
+	\end{subfigure}
+	\hfill
+	\begin{subfigure}{.3\linewidth}
+		\centering
+		\begin{tikzpicture}
+		\tikzstyle{AS}=[circle,draw=black,scale=0.6]
+		\begin{scope}
+		\node[AS,draw=red] (1-11) at (0,0)   {1-11};
+		\node[AS] (1-12) at (-1,-1) {1-12};
+		\node[AS] (1-13) at (0,-1)  {1-13};
+		\node[AS] (1-14) at (1,-1)  {1-14};
+		\node[AS] (1-15) at (-1,-2) {1-15};
+		\node[AS] (1-16) at (0,-2)  {1-16};
+		\node[AS] (1-17) at (1,-2)  {1-17};
+		\node[AS] (1-18) at (-1,-3) {1-18};
+		\node[AS] (1-19) at (0,-3)  {1-19};
+		\node[AS] (1-10) at (0,-4)  {1-10};
+		\end{scope}
+		
+		\path[-]    
+		(1-11) edge (1-12) 
+		(1-11) edge (1-13)
+		(1-11) edge (1-14)
+		(1-12) edge (1-13)
+		(1-12) edge (1-15)
+		(1-13) edge (1-16)
+		(1-14) edge (1-17)
+		(1-15) edge (1-18)
+		(1-16) edge (1-19)
+		(1-19) edge (1-10)
+		;
+		\path[<-]
+		(1-11) edge[draw=blue, style=thick] (1-12) 
+		(1-11) edge[draw=blue, style=thick] (1-13)
+		(1-11) edge[draw=blue, style=thick] (1-14)
+		(1-11) edge[draw=blue, style=thick] (1-15)
+		(1-11) edge[draw=blue, style=thick] (1-17)
+		;
+		
+		\end{tikzpicture}
+		\caption{Flow}
+		\label{fig:main:concept:monitoring:flow}
+	\end{subfigure}
+	
+	\caption{Monitoring resolution}
+	\label{fig:main:concept:monitoring}
+\end{figure}
+The lowest resolution is to summarize the in- and outgoing traffic of the node  (\autoref{fig:main:concept:monitoring:node}). This resolution is simple to implement and produces the smallest amount of footprint, because it needs only one counter per node. But it leaks in details and limits the possibility of the SpeedCam.
 
-A higher resolution of the monitoring is achievable by also looking at a packets metadata. The previously resolutions only aggregates the packet sizes, while this packets inspection enables the SpeedCam to construct flows. With that information it is possible to not only reconstruct the neighbours traffic, but also the sender and receiver traffic. This approach has a higher footprint, because it needs to count the traffic for each node pair.
+The next resolution is higher and logs the traffic per link separately  (\autoref{fig:main:concept:monitoring:link}). The advantage over the previous resolution is that it is not only possible to log the activity of the node itself by aggregating all link traffics. It gives the possibility to also log a fraction of traffic from the neighbours node. The disadvantage is that each link has to be monitored and there is a counter needed for each link. This results in a higher footprint.
+
+A higher resolution of the monitoring is achievable by also looking at a packets metadata. The previously resolutions only aggregates the packet sizes, while this packets inspection enables the SpeedCam to construct flows  (\autoref{fig:main:concept:monitoring:flow}). With that information it is possible to not only reconstruct the neighbours traffic, but also the sender and receiver traffic. This approach has a higher footprint, because it needs to count the traffic for each node pair.
 
 The choice of resolution is based on the amount of available computation power and the possibilities of the network type itself. The current Internet uses the OSI layer \todo{Quelle} and when the inspector is using the application layer, it cannot access the necessary information for higher resolutions. The chosen resolution for this work is explained in \autoref{sec:main:scionimpl}.
 
