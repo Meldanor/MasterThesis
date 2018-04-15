@@ -79,12 +79,7 @@
 \definecolor{darkgreen}{rgb}{0.1,0.7,0.2}
 \definecolor{backgray}{rgb}{0.8,0.8,0.8}
 
-% C/C++ programming languages
-%\lstloadlanguages{C,C++}
-
-% GLSL programming language
 \usepackage{listings}
-\input{glsl.tex}
 
 % Formatting for datasets.
 \newcommand{\dataset}[1]{\textsc{#1}}
@@ -109,7 +104,6 @@
 
 \usetikzlibrary{arrows.meta}
 
-
 \usepackage{pgfplots}
 \pgfplotsset{compat=1.14}
 \begin{document}
@@ -125,8 +119,6 @@
 \subfile{Acknowledgements}
 \subfile{Abstract}
 
-\subfile{Notation}
-
 % The Thesis itself
 \subfile{Introduction}
 \subfile{Prerequisites}
@@ -136,7 +128,7 @@
 \subfile{Conclusion}
 
 \appendix
-\chapter*{Appendices}
+\chapter*{Appendices} \label{chap:appendix}
 \addcontentsline{toc}{chapter}{Appendices}
 \renewcommand{\thesection}{\Alph{section}.}
 \renewcommand{\thesubsection}{\Alph{section}.\arabic{subsection}}
