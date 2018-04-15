@@ -79,14 +79,13 @@ This new method shall encourages user to better utilize the network, but it can 
 
 \section{Goals} \label{sec:intro:goals}
      \begin{easylist}
-        \MyListProperties        
+        \MyNumberedListProperties
         # The thesis' main goal is to achieve a fair usage of bandwidth at multi-path communication in SCIONLab. The proposed solution must not use more resources (computation time, bandwidth) as it will gains through using the bandwidth more efficiently. A solution with a 100\% accuracy is useless if it uses too much resources. Because of this, the goals must be always reach a trade-off between efficiency (resource usage) and effects (resource gain).        
         # The first goal to verify is, that the proposed solution has to detect a greedy user at least at 85\% with a minimal performance impact of 5\%.         
         # The solution must also provide parameters to increase the accuracy of the detection rate, even when the performance impact will be higher. This is important for an adaption in systems who requires an higher detection.
         # It is also a goal to create a scalable solution working with topologies with up to 100 ASes. This goal will be achieved by minimizing the impact on network traffic for necessary protocols.        
         # The solution must be general enough for other network types with multi-path capability.        
         # Based on the previous goal, this thesis has to provide an implementation for SCION which can be merged and used inside SCIONLab.
-        # It is not a goal to clarify whether a punishment can be legally enforced or not. This thesis will only provide a mechanism to identify and punish a greedy user, but does not worry about if this will violates a contract between an user and its internet provider.
     \end{easylist}
 
 \section{Main Contribution}
