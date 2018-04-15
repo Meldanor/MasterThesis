@@ -8,18 +8,9 @@ This chapter contains the results of the experiments from the different strategi
 
 \section{Test environment}
 
-There are two different used test environments to validate the theses.
-The first one is a local virtual machine of Ubuntu 16.04 LTS under a Windows 10 host. The host is an i7-6700K with 16GB DDR-2133. The image is placed on a SSD 850 EVO. The virtual machine can use 4GB of RAM and 4 logical cores. Inside this VM is a virtual network running the default topology as shown in \autoref{fig:eva:defaultTopo}. The installation process is the same as described in the SCION readme.me\footnote{\url{https://github.com/scionproto/scion/blob/master/README.md}, 07.04.2018}. Each component of the virtual network is running as a own process and interact with each other.
+The test environment was the SCIONLab network after its major update on 03.04.2018 and was monitored for 48h. The network is changing over time because user can create a SCIONLab VM and automatically attach them to an existing end point such as 1-17. This enables the user to try out SCION in a virtual environment. A snapshot of the network can be seen in \autoref{fig:eva:scionLabTopo}, which is the topology after a few exploration episodes. It does not represent the complete topology, only the current observed one. 
 
-\begin{figure}
-	\centering
-	\includegraphics[height=8cm]{default_topo}
-	\caption*{\tiny{\url{https://github.com/scionproto/scion/blob/master/doc/fig/default_topo.png}, 07.04.2018}}
-	\caption{Default topology}
-	\label{fig:eva:defaultTopo}
-\end{figure}
-
-The second environment is that of SCIONLab in its current state. A part of this network is seen in \autoref{fig:eva:scionLabTopo}, which is the topology after a few exploration episodes. It does not represent the complete topology, only the current observed one. The inspector program is running on the same machine as the SCPB, while the scripts for information about border router interfaces and path server requests are running on different machines. The inspectors machine is a virtual machine \todo{Specs dieser virtuellen maschine erfragen}. One major problem with that test environment was that there weren't border router information for all nodes in the network. This results in fewer usable nodes than there were ASes as seen in \todo{Liniendiagram mit exlporierten und nutzbaren ASes anzeigen}, which results in a lower precision. This has to be considered in the interpretation of the results.
+The inspector program is running on the same machine as the SCPB, while the scripts for information about border router interfaces and path server requests are running on different machines. The inspectors ran on a virtual machine \todo{Specs dieser virtuellen maschine erfragen}, where also the Grafana and the Prometheus Server ran. One major problem with that test environment was that there weren't border router information for all nodes in the network. This results in fewer usable nodes than there were ASes as seen in \autoref{fig:eva:scionLabTopo}, which results in a lower precision. This has to be considered in the interpretation of the results.
 
 \begin{figure}
 	\centering
@@ -30,7 +21,7 @@ The second environment is that of SCIONLab in its current state. A part of this 
 
 \section{Experiment}
 
-The experiment was ran on the SCIONLab network over 48 hours and ran multiple configurations of the SpeedCam program simultaneously. These can be found in the appendix \todo{Das Script im appenndix hinzufügen} and differ from the standard configuration in its each instance. The standard weights all criteria equally with 1, start an inspection every 10 seconds and uses 20\$ of the network nodes. They were set intuitively while developing the software and serve as a baseline. This configuration used a history of six episodes for each node. The other configurations are:
+The experiment was ran on the SCIONLab network over 48 hours and ran multiple configurations of the SpeedCam program simultaneously. The script and the start parameters can be found in \autoref{app:config} and differ from the standard configuration in its each instance. The standard weights all criteria equally with 1, start an inspection every 10 seconds and uses 20\$ of the network nodes. They were set intuitively while developing the software and serve as a baseline. This configuration used a history of six episodes for each node. The other configurations are:
 
 \begin{easylist}
 	# \textit{Const} uses only one node as a SpeedCam and does not scale with the network. This shall show the inefficiency of such strategy for dynamic, unexplored networks like SCIONLab.
@@ -77,8 +68,8 @@ One problem with the evaluation was to have only a partition of ASes with an acc
 
 \begin{figure}[h]
 	\centering
-	\includegraphics[width=.9\linewidth]{ASCandidateSpeedCamRatio.pdf}
-	\caption{Average amount of ASes, usable candidates and the used SpeedCams}
+	\includegraphics[width=.7\linewidth]{ASCandidateSpeedCamRatio.pdf}
+	\caption{Average amount of discovered ASes, usable candidates and the used SpeedCams per configuration}
 	\label{fig:eva:nodesRatio}
 \end{figure}
 
@@ -135,10 +126,15 @@ The same results can be viewed with the total difference in bytes per second in 
 \subsection{Hit and miss rate} \label{sec:eva:hitrate}
 The hit and miss rate is an important criteria to rate a strategy. A high precision but a low hit rate indicates a bad decision of monitoring ASes. As previously discussed the hit rate will be examined with three different distances. The higher the distance the higher the error of a miss classified AS. The results are displayed in \autoref{fig:eva:hitrate}. Each diagram is split in the hit rate for the in- and the output because of the gab in the values as shown in \autoref{fig:eva:monitoredTraffic}.
 
-The first observation is that the hit rate differs for the input and the output. \todo{Why?} An explanation is missing.
+The first observation of \autoref{fig:eva:hitrate} is that the hit rate is different for the input and the output estimation of the inspector. The exact reason for this phenomena is unclear and needs further investigations. An educated guess would be that because of the smaller gab between the real traffic and the monitored on the output interfaces (see \autoref{fig:eva:monitoredTraffic:output}) results in a smaller error in identifying the maximum bandwidth ASes.
 
-The second observation is that the hit rates increases immensely when considering not only an exact hit but also consider the second position as a hit. 
+The hit rate of an exact hit is for the input so low that every configuration identified the wrong AS as the one with the most bandwidth usage. The result for the output is much better, so that the fixed interval based configuration, the \textit{linear} ones, \textit{const} and \textit{fixed} itself, hat an exact hit at 25\% to 78\% of the time. The difference between \textit{fixed} and the other is that it uses a much longer interval between inspection (60s instead of 10s). This results in much more misses over the time because it doesn't run an inspection when Prometheus captures the traffic every 15 seconds. As seen in the different result of \textit{const} with only one SpeedCam and the other scaling strategies the amount of probes does have a positive impact on the hit rate. 
 
+The hit rate increased when extending the acceptance range. Instead of an exact hit, a second or even third place is considered a hit. As seen for the linear configuration for the input, the increase is nearly 80\% points, \textit{const} increases by 50\% points and \textit{fixed} by 40\% points. An increase, but not so high, is seen for the output guess. An increase of the hit distance results in a correct guess for 50\% off the time for all but one not random based strategy. These are increasing, but only by a small amount.
+
+Finally, the hit rate increases even further by extending the range by another 1. The linear configurations are now guessing the correct AS in 95\% of the time. This means, that the inspector with an interval of 10s and an amount of 2-6 probes in a network of about 100 ASes had identified the correct top three bandwidth user. Even using only one probe as seen in \textit{const} results in a high hit rate with that wide range.
+
+All in all, it can be assumed that the hit rate depends primarily on a small inspection interval and secondarily on the amount of used probes.
 \begin{figure}
 	\centering
 	\begin{subfigure}{0.8\linewidth}
@@ -161,7 +157,7 @@ The second observation is that the hit rates increases immensely when considerin
 		\caption{Distance 2 - 1st, 2nd or 3rd}
 		\label{fig:eva:hitrate:2}
 	\end{subfigure}
-	\caption{Hit and miss rate of the inspection result.}
+	\caption{Hit and miss rate of the inspection result over time. A hit occurs when the inspector top bandwidth consuming AS is the same as the Prometheus one.}
 	\label{fig:eva:hitrate}
 \end{figure}
 
@@ -175,20 +171,20 @@ The memory impact has a similar image as seen in \autoref{fig:eva:performance:me
 All in all does have no configuration a significant impact on the systems performance for the SCIONLab network. The goal was to use 5\% or fewer resources, which was achieved.
 \begin{figure}
 	\centering
-	\begin{subfigure}{0.95\linewidth}
+	\begin{subfigure}{0.48\linewidth}
 		\centering
 		\includegraphics[trim={0mm 100mm 0mm 0mm},clip,width=0.98\textwidth]{performance_diagrams.pdf}
 		\caption{CPU usage in \%}
 		\label{fig:eva:performance:cpu}
 	\end{subfigure}
 	\hfill
-	\begin{subfigure}{0.95\linewidth}
+	\begin{subfigure}{0.48\linewidth}
 		\centering
 		\includegraphics[trim={0mm 0mm 0mm 100mm},clip,width=0.98\textwidth]{performance_diagrams.pdf}
 		\caption{Memory usage in \%}
 		\label{fig:eva:performance:mem}
 	\end{subfigure}
-	\caption{Performance impact off configuration over 48h}
+	\caption{Performance impact per configuration over 48h with a snapshot every 5s}
 	\label{fig:eva:performance}
 \end{figure}
 

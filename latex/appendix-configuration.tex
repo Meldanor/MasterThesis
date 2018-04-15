@@ -1,0 +1,42 @@
+\documentclass[thesis.tex]{subfiles}
+\begin{document}
+
+\section{Configuration} \label{app:config}
+This listing contains the script to ran the different configuration in parallel.
+\begin{lstlisting}[language=bash, basicstyle=\scriptsize]
+#!/bin/sh
+# Necessary arguments
+STD_ARGS="-psUrl=http://localhost:8082/pathServerRequests -brUrl=http://localhost:8082/prometheusClient"
+
+# Always use 1 node
+CONST="-resultDir=$RESULT_DIR/const -scaleType=const -scaleParam=1"
+
+# Linear with 0.1 as scale factor
+LINEAR01="-resultDir=$RESULT_DIR/linear01 -scaleType=linear -scaleParam=0.1"
+
+# Linear with 0.2 as scale factor
+LINEAR02="-resultDir=$RESULT_DIR/linear02 -scaleType=linear -scaleParam=0.2"
+
+# Linear with 0.33 as scale factor
+LINEAR033="-resultDir=$RESULT_DIR/linear033 -scaleType=linear -scaleParam=0.33"
+
+# Linear with 0.33 as scale factor
+LOG="-resultDir=$RESULT_DIR/log -scaleType=log -scaleParam=10"
+
+# Random wait time
+RANDOM="-resultDir=$RESULT_DIR/random -intervalStrat=random"
+
+# Fixed wait time of 60 seconds
+FIXED="-resultDir=$RESULT_DIR/fixed -intervalStrat=fixed -intervalMin=60"
+
+# Experience
+EXPERIENCE="-resultDir=$RESULT_DIR/experience -intervalStrat=experience"
+
+# Experience with 12 episodes (more)
+EXPERIENCE12="-resultDir=$RESULT_DIR/experience_12 -intervalStrat=experience -cEpisodes=12"
+
+# Experience with 3 episodes (fewer)
+EXPERIENCE03="-resultDir=$RESULT_DIR/experience_03 -intervalStrat=experience -cEpisodes=3"
+\end{lstlisting}
+
+\end{document}
