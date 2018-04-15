@@ -30,12 +30,11 @@ The second environment is that of SCIONLab in its current state. A part of this 
 
 \section{Experiment}
 
-The experiment was ran on the SCIONLab network over 48 hours and ran multiple configurations of the SpeedCam program simultaneously. These can be found in the appendix \todo{Das Script im appenndix hinzufügen} and differ from the standard configuration in its each instance, which are described here:
+The experiment was ran on the SCIONLab network over 48 hours and ran multiple configurations of the SpeedCam program simultaneously. These can be found in the appendix \todo{Das Script im appenndix hinzufügen} and differ from the standard configuration in its each instance. The standard weights all criteria equally with 1, start an inspection every 10 seconds and uses 20\$ of the network nodes. They were set intuitively while developing the software and serve as a baseline. This configuration used a history of six episodes for each node. The other configurations are:
 
 \begin{easylist}
-	# \textit{Standard} using the default values for the program. All weights are equal to one, the interval is a fixed to 10 seconds and it uses 20\% of the network nodes. They were set intuitively while developing the software and serve as a baseline. This configuration used a history of six episodes for each node.
 	# \textit{Const} uses only one node as a SpeedCam and does not scale with the network. This shall show the inefficiency of such strategy for dynamic, unexplored networks like SCIONLab.
-	# \textit{Linear01} uses 10\%, \textit{Linear033} 30\% of the network nodes and will be used the evaluate the different scale methods.
+	# \textit{Linear01} uses 10\%, \textit{Linear033} 30\% of the network nodes and will be used the evaluate the different scale methods. \textit{Linear02} uses the standard values with 20\% linear scaling.
 	# \textit{Log} uses a logarithmic scale with the base of 10 to calculate the amount of SpeedCams. As already discusses it is expected to result in a lower precision than the linear scaling methods.
 	# \textit{Random} waits a random amount of time between ten seconds to one hour between the inspections, while \textit{Fixed} starts an inspection every minute. 
 	# \textit{Experience} uses the strategy by using past inspection to predict the next one. \textit{Experience12} uses twice as much episodes (total of 12) and \textit{Experience03} uses half as much with a total of only 3 episodes. The experience strategy starts with the random strategy until there are 5 data points.		
@@ -45,22 +44,129 @@ Each instance writes the result of an inspection to a .JSON file containing the 
 
 A Prometheus server is additionally running to provide a baseline of the measured traffic inside the network. This instance fetch data from all border router in an interval of 15 seconds. The difference to the inspector is, that the Prometheus server fetches always the metrics. The data will be used to calculate the precision of the monitored data with \autoref{equo:qualitySelection}, where $\text{traffic}(N)$ is equals to the Prometheus server data. 
 
-Because of the missing or irregular set capacity information a congestion could not be detected, but can only be guessed. This results in unverifiable cases of \autoref{tab:classifyUser}. Instead the hit rate of finding maximums is used to calculate the quality of a configuration. The inspector and the Prometheus server will sort the monitored ASes by their bandwidth for a given timespan. When the position of the inspectors highest ASes only differs by a maximum of 3 from the servers, it will considered as a hit. Otherwise, the inspector guessed the wrong AS and this will be considered as a miss. 
+Because of the missing or irregular set capacity information a congestion could not be detected, but can only be guessed. This results in unverifiable cases of \autoref{tab:classifyUser}. Instead the hit rate of finding maximums is used to calculate the quality of a configuration. The result list of monitored ASes is sorted by their recorded bandwidth for both the inspector and the Prometheus server. When the inspector and the Prometheus Server has the same maximum, the inspection is considered a hit. To soften the possible error of differentiating the bandwidth at different points of time, the maximum is spanned to until the third position. If the Prometheus maximum AS is at the 2nd or even the 3rd position of the inspectors, the inspection could also be a hit, but a weaker one. This is considered by using a difference of 0, 1 and 2 from the top position and for each difference the hit rate is calculated. Beside that, when the top AS is too few away, the inspection is considered an a miss.
 
-The performance influence of the inspector is measured with the UNIX tool \textit{top} and creates a snapshot of the memory and CPU usage of the programs every 5 seconds. It was build with Go 1.9.5 linux/amd64 without any additional flags.
+The performance influence of the inspector is measured with the UNIX tool \textit{top} and creates a snapshot of the memory and CPU usage of the programs every 5 seconds. It was build with Go 1.9.5 linux/amd64 without any additional flags and all configurations ran as parallel processes without influencing each other. The IO influence was not captured because the inspector writes only a JSON mostly fewer than 100 KB after an inspection. It is assumed that this has no impact on the overall performance and can even be disabled in a real application.
 
 \section{Result}
-This part will list the results of the previously described configuration.
+This part will list the results of the previously described configuration. \autoref{fig:eva:monitoredTraffic} displays the traffic in the time of the experiment, \autoref{fig:eva:monitoredTraffic:input} for the input of the interfaces and \autoref{fig:eva:monitoredTraffic:output} for the output of the interface. The series \textit{prometheus} is the data from the Prometheus server and serves as the comparison. The difference in the behavior of this for the input and the output resides, that the monitored network is only a part of the SCIONLab and routed traffic flows inside the monitored than outside because of the presence of general attachment points. 
 
-\subsection{Hit and miss rate}
+The figure even gives a good impression of the results and the influence of the configuration. The best configuration, \textit{linear033}, monitored only about 50\% of the total traffic, while random based strategies as the \textit{experience} ones has the worst coverage. This will be discussed in detail in \autoref{sec:eva:precision}.
 
-\todo{Stacked bar chart for each diagram}
 
-\subsection{Precision}
+\begin{figure}[h]
+	\centering
+	\begin{subfigure}{.48\linewidth}
+		\centering
+		\includegraphics[width=0.98\textwidth]{monitoredTraffic_input.pdf}
+		\caption{Input}
+		\label{fig:eva:monitoredTraffic:input}
+	\end{subfigure}
+	\hfill
+	\begin{subfigure}{0.48\linewidth}
+		\centering
+		\includegraphics[width=0.98\textwidth]{monitoredTraffic_output.pdf}
+		\caption{Output}
+		\label{fig:eva:monitoredTraffic:output}
+	\end{subfigure}
+	\caption{Monitored bandwidth in bytes per second over the experiment time. Down sampled from 15 seconds to 1 hour.}
+	\label{fig:eva:monitoredTraffic}
+\end{figure}
 
-\todo{Liniendiagram über zeit mit Prometheus data und den inspector daten}
+One problem with the evaluation was to have only a partition of ASes with an accessible Prometheus client interface. The ratio is shown in \autoref{fig:eva:nodesRatio}. It displays the average amount of ASes the configuration has discovered, the candidates which has such an open client interface and the used SpeedCams per episode. \textit{random} has the lowest with 54 ASes, while \textit{fixed} has nearly twice of 102 ASes discovered. The reason for it, that \textit{random} has very few inspections and has a small chance to react to changes of the network. Additionally, new ASes were not only discovered when the path requests contained them, but also when a SpeedCam return a border router result with an unknown AS. This happened a lot for the attachment point of the virtual machines, AS 1-17. While this did not have an influence on the candidates it will have one with an improved possibility to monitor traffic. One example would be a possibility without knowing the border routers URL. Details will be listed in \autoref{chap:concl}.
 
-\subsection{Performance}
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=.9\linewidth]{ASCandidateSpeedCamRatio.pdf}
+	\caption{Average amount of ASes, usable candidates and the used SpeedCams}
+	\label{fig:eva:nodesRatio}
+\end{figure}
+
+\subsection{Precision} \label{sec:eva:precision}
+
+The precision is the proportion of the real traffic by Prometheus to the monitored by the inspector. The higher the precision the better the inspection. It is split into the monitored input and output traffic and shown in separate graphs. The results are in percentage in \autoref{fig:eva:precisionPercent} where higher is better, but also in total difference in \autoref{fig:eva:precisionTotal} where lower is better.
+
+Surprisingly the precision for the experience based strategies are zero in average, what means that the experience strategy do not cover any traffic in the network. The same result applies to \textit{random} and they are linked to each other. The experience strategy needs to gather a base of 5 data points and uses the random strategy for it and inherit the same result. Two possible solutions for this would be to use another training strategy or use a longer experiment duration instead of only two days. Alternatives are discussed in \autoref{chap:concl}. The left interval based strategy \textit{fixed} has a better result, but to far away from an acceptable distribution. It covers only 20\% in average and the very high variance are indicators, that a fixed inspection interval of one minutes can lead to many false-true classification because of low monitored traffic.
+
+The other strategies are using an interval of 10 seconds between an inspection and vary in their amount of utilized SpeedCams. \textit{const} brings the worst results with a coverage of 10-20\%, but which is impressive for using only one node. It selected the core ASes \textit{1-14} 1564 times, \textit{3-31} 1019 times, \textit{4-41} 541 times and \textit{2-21} 381 times. Each of them is connected with the other ISDs and have high traffic, which is why there are selected so often. The \textit{const} strategy uses only 1 of 96 nodes to measure the traffic with a precision of 20\%.
+
+The \textit{log} uses only one to two nodes more with an increase of 10\% points. A very similar picture is given by the \textit{linear01} scaling that happens because of the previously described problem with only 21 usable probes in the network. For that small number the scales differ only in on or two nodes. The other liner scales achieve a higher precision by using more nodes. Interesting is fixed and the linear configuration were able to monitor sometimes about 90 to 100\% of the network with a very small amount of nodes. The reason for that phenomena is that the selection consisted of very good probe points for the current flow. But this happened too few to be statistically relevant and should not be relied onto.
+
+The same results can be viewed with the total difference in bytes per second in \autoref{fig:eva:precisionTotal}.
+
+\begin{figure}[h]
+	\centering
+	\begin{subfigure}{.48\linewidth}
+		\centering
+		\includegraphics[trim={0mm 110mm 0mm 0mm},clip,width=0.98\textwidth]{percentageDifferenceTraffic_diagrams.pdf}
+		\caption{Input}
+		\label{fig:eva:precisionPercent:input}
+	\end{subfigure}
+	\hfil
+	\begin{subfigure}{0.48\linewidth}
+		\centering
+		\includegraphics[trim={0mm 0mm 0mm 105mm},clip,width=0.98\textwidth]{percentageDifferenceTraffic_diagrams.pdf}
+		\caption{Output}
+		\label{fig:eva:precisionPercent:output}
+	\end{subfigure}
+	\caption{Distribution of percentage difference of real to monitored traffic}
+	\label{fig:eva:precisionPercent}
+\end{figure}
+
+\begin{figure}[h]
+	\centering
+	\begin{subfigure}{.48\linewidth}
+		\centering
+		\includegraphics[trim={0mm 111mm 0mm 0mm},clip,width=0.98\textwidth]{totalDifferenceTraffic_diagrams.pdf}
+		\caption{Input}
+		\label{fig:eva:precisionTotal:input}
+	\end{subfigure}
+	\begin{subfigure}{0.48\linewidth}
+		\centering
+		\includegraphics[trim={0mm 0mm 0mm 105mm},clip,width=0.98\textwidth]{totalDifferenceTraffic_diagrams.pdf}
+		\caption{Output}
+		\label{fig:eva:precisionTotal:output}
+	\end{subfigure}
+	\caption{Distribution of total difference of real to monitored traffic}
+	\label{fig:eva:precisionTotal}
+\end{figure}
+
+
+\subsection{Hit and miss rate} \label{sec:eva:hitrate}
+The hit and miss rate is an important criteria to rate a strategy. A high precision but a low hit rate indicates a bad decision of monitoring ASes. As previously discussed the hit rate will be examined with three different distances. The higher the distance the higher the error of a miss classified AS. The results are displayed in \autoref{fig:eva:hitrate}. Each diagram is split in the hit rate for the in- and the output because of the gab in the values as shown in \autoref{fig:eva:monitoredTraffic}.
+
+The first observation is that the hit rate differs for the input and the output. \todo{Why?} An explanation is missing.
+
+The second observation is that the hit rates increases immensely when considering not only an exact hit but also consider the second position as a hit. 
+
+\begin{figure}
+	\centering
+	\begin{subfigure}{0.8\linewidth}
+		\centering
+		\includegraphics[width=0.95\textwidth]{hitrateDist0.pdf}
+		\caption{Distance 0 - Exact hit}
+		\label{fig:eva:hitrate:0}
+	\end{subfigure}
+	\hfill
+	\begin{subfigure}{0.8\linewidth}
+		\centering
+		\includegraphics[width=0.95\textwidth]{hitrateDist1.pdf}
+		\caption{Distance 1 - 1st or 2nd}
+		\label{fig:eva:hitrate:1}
+	\end{subfigure}
+	\hfill	
+	\begin{subfigure}{0.8\linewidth}
+		\centering
+		\includegraphics[width=0.95\textwidth]{hitrateDist2.pdf}
+		\caption{Distance 2 - 1st, 2nd or 3rd}
+		\label{fig:eva:hitrate:2}
+	\end{subfigure}
+	\caption{Hit and miss rate of the inspection result.}
+	\label{fig:eva:hitrate}
+\end{figure}
+
+
+\subsection{Performance} \label{sec:eva:performance}
 
 The performance impact of SpeedCam on the system is minimal as seen in \autoref{fig:eva:performance}. Without the outliers, no configuration uses more than 1\% of the CPUs computation time and uses in average fewer than 0.5\%. The main impact of the CPU is the amount of utilized SpeedCams as seen in the linear configuration. The more SpeedCams existing, the more candidate scores needs to be calculated and the more monitoring results needs to get parsed. The random and the experience based configuration uses the fewest CPU in average, because most of the time they are sleeping and do not utilize the CPU.
 
@@ -69,13 +175,13 @@ The memory impact has a similar image as seen in \autoref{fig:eva:performance:me
 All in all does have no configuration a significant impact on the systems performance for the SCIONLab network. The goal was to use 5\% or fewer resources, which was achieved.
 \begin{figure}
 	\centering
-	\begin{subfigure}{.95\linewidth}
+	\begin{subfigure}{0.95\linewidth}
 		\centering
 		\includegraphics[trim={0mm 100mm 0mm 0mm},clip,width=0.98\textwidth]{performance_diagrams.pdf}
 		\caption{CPU usage in \%}
 		\label{fig:eva:performance:cpu}
 	\end{subfigure}
-\hfill
+	\hfill
 	\begin{subfigure}{0.95\linewidth}
 		\centering
 		\includegraphics[trim={0mm 0mm 0mm 100mm},clip,width=0.98\textwidth]{performance_diagrams.pdf}
@@ -85,8 +191,6 @@ All in all does have no configuration a significant impact on the systems perfor
 	\caption{Performance impact off configuration over 48h}
 	\label{fig:eva:performance}
 \end{figure}
-
-\todo{Network traffic wegen SpeedCam über die Zeit anzeigen}
 
 \subfilebib % Makes bibliography available when compiling as subfile
 \end{document}
