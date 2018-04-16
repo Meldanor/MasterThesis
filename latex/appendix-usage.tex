@@ -1,0 +1,48 @@
+\documentclass[thesis.tex]{subfiles}
+\begin{document}
+
+\section{Usage} \label{app:usage}
+This section describes how the use the prototype to run the SpeedCam approach. Go 1.9 and Govendor\footnote{\url{https://github.com/kardianos/govendor}, 16.04.2018} are required to ran the program.
+
+\subsection*{Install}
+Install the dependencies via govendor (needs to be installed)
+
+{\lstinline|govendor sync|}
+
+\subsection*{Run}
+The {\lstinline|core.go|} contains the SpeedCam approach and can be run using a real SCION network.
+
+{\lstinline|go run core.go -psUrl=[URL] -brUrl=[URL]|}
+
+or build with {\lstinline|go build core.go|} and run with {\lstinline|./core -psUrl=[URL] -brUrl=[URL]|}
+\subsection*{Necessary parameter}
+This parameter are necessary for the program to run.
+
+\begin{easylist}[itemize]
+	\ListProperties(Space=0.0ex, Space3=-0.5ex, Space*=-0.5ex)
+	# {\lstinline|-psUrl=[URL]|}, where {\lstinline|[URL]|} points to an HTTP resource providing path server requests. Example: {\lstinline|-psUrl=http://localhost:8080/pathServerRequests|}	
+	# {\lstinline|-brUrl=[URL]|}, where {\lstinline|[URL]|} points to an HTTP resource providing border router information. Example: {\lstinline|-brUrl=http://localhost:8080/prometheusClient|}
+\end{easylist}
+
+You can also run with the parameter {\lstinline|-h|} or {\lstinline|--help|} to print the help to console.
+\subsection*{Optional parameter}
+This are optional and will use a default value if not provided. The default value is given in for each parameter in \{\}.
+
+\begin{easylist}[itemize]
+	\ListProperties(Space=0.0ex, Space3=-0.5ex, Space*=-0.5ex)
+	# {\lstinline|-cEpisodes=[INT]{6}|} - Set the amount of stored episodes(inspection cycles) before overriding old ones.	
+	# {\lstinline|-cWDegree=[FLOAT]{1.0}|} - Set the weight of a nodes degree for its candidate score.
+	# {\lstinline|-cWCapacity=[FLOAT]{1.0}|} - Set the weight of a nodes capacity for its candidate score. Currently not supported (missing capacity info for link)
+	# {\lstinline|-cWSuccess=[FLOAT]{1.0}|} - Set the weight of a nodes success to identify congestion for its candidate score. Currently not supported.
+	# {\lstinline|-cWActivity=[FLOAT]{1.0}|} - Set the weight of a nodes activity for its candidate score. Currently simplified because of missing capacity information.
+	# {\lstinline|-verbose=[BOOLEAN]{true}|} - Enables/disables additional debug information.
+	# {\lstinline|-resultDir=[String]{""}|} - If existing directory, the inspector will write the results to this directory as .JSON files. No result is written per default.
+	# {\lstinline|-scaleType=[String]{"linear"}|} - Scaling of how many SpeedCams should be selected. Supported: \textbf{const}, \textbf{log} and \textbf{linear}. See scaleParam for more control.
+	# {\lstinline|-scaleParam=[FLAT]{0.2}|} - The parameter for the scale func. Base for \textbf{log}, factor for \textbf{linear} and the const for \textbf{const}. See scaleType for more information.
+	# {\lstinline|-cSpeedCamDiff=[INT]{0}|} - Additional(positive) or fewer(negative) SpeedCam to be selected. Will be added to result of scalType.
+	# {\lstinline|-intervalStratFlag=[String]{"fixed"}|} - Strategy for waiting. Supported: \textbf{fixed}, \textbf{random} and \textbf{experience}. The last one uses the random configuration if there are too few time points in history.
+	# {\lstinline|-intervalMin=[INT]{10}|} - Seconds to wait at minimum till next inspection.
+	# {\lstinline|-intervalMax=[INT]{3600}|} - Seconds to wait at maximum till next inspection.
+\end{easylist}
+
+\end{document}

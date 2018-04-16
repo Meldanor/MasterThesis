@@ -31,8 +31,6 @@ But videos are not the only reason for a higher bandwidth usage. Big Data compan
     \caption{5 year statistics of DE-CIX traffic}
 \end{figure}
 
-\todo{Add picture of DE-CIX current bandwidth}
-
 One solution to solve this problems is to scale-up and install more and more bandwidth capacities like fiber cables or newer devices. This is inefficient and consumes probably more energy and increases so the running costs. There are also physical limits for improving the performance so that a small benefit results in high costs.
 
 Another solution is to better utilize the current resources as it is done with the multi path process in SCION. The user can split their data and sent the packets via multiple connections. This leads to a better usage of the available bandwidth in the network. In currents internet this is not possible, because the router are deciding for themselves which route to take to the destination. 
@@ -65,18 +63,6 @@ Another solution is to better utilize the current resources as it is done with t
 
 This new method shall encourages user to better utilize the network, but it can also be misused. In \autoref{fig:intro:exampleMultipath} is an example visualized. Each AS is connected with each other via a 1 gigabit/s connection. AS 1-1 can send AS 1-4 using single path data with a 1 gigabit/s directly. It could also uses the paths 1-1$\rightarrow$1-2$\rightarrow$1-4 and 1-1$\rightarrow$1-3$\rightarrow$1-4 to sends its data and increase its bandwidth to ideally 3 gigabit/s, if there is zero delay on the hops. This possibility rises the questions how to monitor and enforce the bandwidth usage of a one particular AS. When using a single path connection the measurement point is at the destination. If this AS exceeds its limit the destination router can drop packets. This solution is not possible in a multi path communication. It is important to find an answer for this question to avoid misuse.
 
-\begin{easylist}
-    \MyListProperties
-    # Resources in networks (bandwidth, CPU time and memory usage)
-    # Expected growth of bandwidth (D.IX? in Frankfurt) -> Importance of fair system
-    #\todo{Source from Hausheer inauguration speech}
-    ## \textit{Figure of growth}
-    ## \textit{Figure of expected bandwidth usage in a few years}
-    ## Source for currently unused bandwidth (if there is some source)
-    # Multi-Path in SCION as a solution for bandwidth usage
-    # Problem with a greedy user can cause (congestions)
-\end{easylist}
-
 \section{Goals} \label{sec:intro:goals}
      \begin{easylist}
         \MyNumberedListProperties
@@ -89,20 +75,9 @@ This new method shall encourages user to better utilize the network, but it can 
     \end{easylist}
 
 \section{Main Contribution}
-    \begin{easylist}
-        \MyListProperties
-        # SpeedCam approach
-        ## Measuring the used bandwidth
-        ### Use a probabilistic approach 
-        ## Regulate  / Punish greedy user
-        
-        # Implementation in SCIONLab
-        ## Also usable in SCION
-        ## Also usable in other networks
-        ### Examples: Intranets 
-    \end{easylist}
-\section{Thesis Outline}
+The proposed contribution will provide a solution to identify user inside a network with a small impact on the networks performance. It will use a heuristic based selection algorithm to only monitor interesting nodes. This leads to a small amount of necessary nodes to receive a high enough coverage of the networks traffic to identify nodes which overuses their resources. The approach will be created for networks in general and will have an proof of work implementation for the SCIONLab network structure.
 
+\section{Thesis Outline}
 This thesis is divided into six chapters and an appendix. The first chapter \autoref{chap:introduction} introduced the problem and provided a motivation to solve such a problem. It defined goals to get achieved and outlined the main contribution to the topic.
 
 The next chapter \autoref{chap:preq} explains the necessary requirements to understand and follow this work. It explains how the SCION network is working and what the used tool, Prometheus, is.
