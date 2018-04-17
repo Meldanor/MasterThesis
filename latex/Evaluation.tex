@@ -25,9 +25,9 @@ The experiment was ran on the SCIONLab network over 48 hours and ran multiple co
 
 \begin{easylist}
 	# \textit{Const} uses only one node as a SpeedCam and does not scale with the network. This shall show the inefficiency of such strategy for dynamic, unexplored networks like SCIONLab.
-	# \textit{Linear01} uses 10\%, \textit{Linear033} 30\% of the network nodes and will be used the evaluate the different scale methods. \textit{Linear02} uses the standard values with 20\% linear scaling.
+	# \textit{Linear01} uses 10\%, \textit{Linear033} 33\% of the network nodes and will be used the evaluate the different scale methods. \textit{Linear02} uses the standard values with 20\% linear scaling. The naming convention is based on the factor, Linear01 conforms to $0.1 \cdot n$ and the same for the other configuration.
 	# \textit{Log} uses a logarithmic scale with the base of 10 to calculate the amount of SpeedCams. As already discusses it is expected to result in a lower precision than the linear scaling methods.
-	# \textit{Random} waits a random amount of time between ten seconds to one hour between the inspections, while \textit{Fixed} starts an inspection every minute. 
+	# \textit{Random} waits a random time between an inspection to start a new one. The random interval is between 10 seconds (default) to one hour. In contrast to this \textit{fixex} waits always 60 seconds before starting a new inspection.
 	# \textit{Experience} uses the strategy by using past inspection to predict the next one. \textit{Experience12} uses twice as much episodes (total of 12) and \textit{Experience03} uses half as much with a total of only 3 episodes. The experience strategy starts with the random strategy until there are 5 data points.		
 \end{easylist}
 
