@@ -6,7 +6,7 @@
 
 This chapter lists and describes the necessary topics to follow this thesis. It explains SCION's structure, functionality and details about the component as for example the border router. SCIONLab itself and its work is also outlined. At last, a short description about Prometheus and its used features will be given.
 
-\section{SCION} \cite{SCIONPaper} \cite{SCIONBook}
+\section{SCION} \cite{SCIONPaper, SCIONBook}
 
 SCION, an acronym for \textbf{S}calability, \textbf{C}ontrol and \textbf{I}solation \textbf{O}n \textbf{N}ext-generation networks, provides a green-field solution for problems of the current Internet, which is named in this content as the \textit{legacy internet}. The main difference between them is \textit{path-transparency}. In the current existing IP routing protocol the end-hosts cannot chose a path, but must rely on the router between them to find a good path. This leads to the problem, that the receiver cannot verify, if the packets were modified nor if the taken path was trustworthy. SCION allows the end hosts to chose between communication paths and also to see the path of a packet on the end-host. The fundamental change needs a different organization of the network nodes, which will be described in this part.
 
@@ -16,7 +16,9 @@ An AS needs to know the path to another AS to communicate to them. This routing 
 
 One advantage of this structured routing is that a communication does not leave an ISD when it is not necessary. This enables to create ISDs for different security or efficiency scenarios. Packets are only routed in a trusted zone when they need to be. The legacy internet do not guarantee this behavior. A packet from OvGU-Magdeburg to ETH-Zuerich could be routed over different location in the world without control over it. If both of them were inside one ISD containing only research institutes, than the packet would be guaranteed to not leave this ISD because it is not necessary.
 
-Another advantage is the possibility to choose an alternative way. This is interesting in cases a path segment has a failure and should be avoided for different reasons like malicious attacks or technical failures. The legacy internet relies on the Border-Gateway-Protocol \todo{Quelle dafür einfügen}, when was inspected by many researcher for its fault-tolerance and stability. \todo{Dort die quellen einfügen aus SCIONBook}. It was also shown in \cite{Sahoo.2006} that the reaction time (convergence) for realistic topologies takes seconds to minutes for the protocol to adjust to failures. A similar result was given by \cite{Labovitz.2001} of a delay of 3 minutes for 30\% the cases and even higher as 15 minutes in total. In SCION this slow reaction problem is minimized by letting the user choose different path. If one path is not responding the node can request another path and use that. 
+Another advantage is the possibility to choose an alternative way. This is interesting in cases a path segment has a failure and should be avoided for different reasons like malicious attacks or technical failures. The legacy internet relies on the Border-Gateway-Protocol (BGP) \cite{rekhter2005border, Halabi.1997}, when was inspected by many researcher for its fault-tolerance and stability. It was also shown in \cite{Sahoo.2006} that the reaction time (convergence) for realistic topologies takes seconds to minutes for the protocol to adjust to failures. A similar result was given by \cite{Labovitz.2001} of a delay of 3 minutes for 30\% the cases and even higher as 15 minutes in total. In SCION this slow reaction problem is minimized by letting the user choose different path. If one path is not responding the node can request for another path or use one of the provided alternatives.
+
+The multiple paths to the target can also be used for a better bandwidth utilization. Instead of sending the data over only one link the stream can split into multiple sizes and transfered over the different paths to the target. This requires 
 
 \begin{figure}
 	\centering
@@ -25,9 +27,6 @@ Another advantage is the possibility to choose an alternative way. This is inter
 	\label{fig:prequirement:scionStructure}
 \end{figure}
 
-shortcomings [25, 117, 216,
-219] and especially lacks integrity protection for routing update messages.
-Maliciously acting
 \begin{easylist}
     \MyListProperties
     # SCION
