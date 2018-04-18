@@ -1,0 +1,22 @@
+\documentclass[thesis.tex]{subfiles}
+\begin{document}
+
+\section{Prometheus metric} \label{app:promMetric}
+
+This is an excerpt of text file containing the metrics from the border router. The original one is 367 lines in size and the excerpt is reduced to the necessary lines for this work. The lines with a beginning hash are comments and indicates the meaning of the value and the type. 
+\vspace{5mm}
+\begin{lstlisting}[basicstyle=\scriptsize]
+# HELP border_base_labels Border base labels.
+# TYPE border_base_labels gauge
+border_base_labels{elem="br1-10-1"} 1
+# HELP border_input_bytes_total Total number of input bytes received.
+# TYPE border_input_bytes_total counter
+border_input_bytes_total{elem="br1-10-1",sock="intf:16"} 763646
+border_input_bytes_total{elem="br1-10-1",sock="loc:0"} 652487
+# HELP border_output_bytes_total Total number of output bytes sent.
+# TYPE border_output_bytes_total counter
+border_output_bytes_total{elem="br1-10-1",sock="intf:16"} 855351
+border_output_bytes_total{elem="br1-10-1",sock="loc:0"} 786221
+\end{lstlisting}
+
+\end{document}
