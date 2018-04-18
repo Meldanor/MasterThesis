@@ -24,11 +24,27 @@ Another advantage is the possibility to choose an alternative way. This is inter
 The multiple paths to the target can also be used for a better bandwidth utilization. Instead of sending the data over only one link the stream can be split into multiple sub streams and transfered over the available paths to the target. 
 This leads to a better utilized networks capacity because otherwise unused links are used and not idle. Bandwidth is cannot be saved or stored, it can only be used in a moment or it would be wasted. But this also can lead to an unwanted flood of the network and can create multiple congestions, unintentionally. This would negate the advantage and should only be used with caution. Because of the potential misuse of such a multipath communication several studies have been conducted which are explained in \autoref{chap:prevwork}
 
+The legacy internet cannot be replaced at once but can only be updated or replaced incrementally. This process can take many years as seen for the deployment of IPv6. The update for a necessary address space expansion was firstly published in 1998\cite{Deering.1998} and its adoption rate is in 2018 only at around 22\% \cite{GoogleInc.} to 24\% \cite{Ripenetworkcoordinationcentre.18.04.2018}, even the IPv4 address space ran out on 03.02.2011\cite{ICANN.03.02.2011}. Similar to the transition from IPv4 to IPv6 there is a need for a transition from the legacy internet to SCION, which is realized with the \textbf{S}CION-\textbf{I}P \textbf{G}ateway. It encapsulates the IP packets in SCION packets to interact with the legacy internet.
+
+This description is only an overview about the complexity and mechanism of SCION, but this will be sufficient to understand the nature of this work. For further reading it is recommended to start with the paper of Adrian et. al\cite{SCIONPaper} and go into details with the published book of Adrian et. al\cite{SCIONBook}.
+
 \begin{figure}
 	\centering
 	\includegraphics[trim=19mm 214mm 105mm 19mm ,clip,width=0.5\linewidth]{2015-SCION-short_3.pdf}
 	\caption{Four SCION ISDs with ISD Cores and ASes \cite{SCIONPaper}}
 	\label{fig:prequirement:scionStructure}
+\end{figure}
+
+\subsection{SCIONLab}
+
+SCIONLab\footnote{\url{https://www.scionlab.org}, 18.04.2018} is the test environment to test out SCION and its functionality in a running network. Its current topology can be seen in \autoref{fig:prequirement:scionlabTopo}. The SCIONLab team is currently creating multiple application to run using the SCION network itself.
+
+\begin{figure}
+	\centering
+	\includegraphics[width=0.95\linewidth]{topology_no_labels.png}
+	\caption*{\tiny{\url{https://www.scionlab.org/public/img/topology_no_labels.gv.png} (18.04.2018)}}
+	\caption{SCIONLab topology. Shows the major ASes without the user VM. The core ASes are bordered in red}
+	\label{fig:prequirement:scionlabTopo}
 \end{figure}
 
 \subsection{Prometheus} 
