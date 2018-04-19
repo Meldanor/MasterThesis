@@ -53,11 +53,13 @@
     \NewList
     \ListProperties(Hang=true, Progressive=4ex, Space=0.0ex, Space3=-0.5ex, Space*=-0.5ex)
 }
+
 % Links/URLs in proper colors
 \usepackage{hyperref}
 \definecolor{dark-red}{rgb}{0.4,0.15,0.15}
 \definecolor{dark-blue}{rgb}{0.15,0.15,0.4}
 \definecolor{medium-blue}{rgb}{0,0,0.6}
+% Change this to black for print properties
 \hypersetup{
     colorlinks, linkcolor={dark-red},
     citecolor={dark-blue}, urlcolor={medium-blue}
@@ -80,7 +82,6 @@
 \definecolor{backgray}{rgb}{0.8,0.8,0.8}
 
 \usepackage{listings}
-%\input{glsl.tex}
 \usepackage{lstautogobble}  % Fix relative indenting
 \usepackage{color}          % Code coloring
 \usepackage{zi4}            % Nice font
