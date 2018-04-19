@@ -98,31 +98,13 @@ One virtual credit is worth 10 MBits/s of capacity to reserve without an expirat
 
 This alternative approach to prevent an overuse was not considered because it was easily exploitable as shown in the paper itself. A malicious AS can spawn multiple virtual ASes which connects to the malicious AS. This one now has the credits of the virtual ASes but they do not improve network. The malicious AS can use their credits to flood the network. Because of this exploits in such a basic concept it was not considered for this work.
 
-\subsection{Quality of Service}
-The legacy internet has a solution to priotorize 
+\subsection{Delay-Tolerant Networks}
+Zhu et. al \cite{Zhu.2014} created a system called \textit{iTrust} to detect nodes in a delay-tolerant network which does not honestly forward messages. The forwarding of messages is important in such network as they suffer from frequent disconnection. Examples of them are sensor networks with a temporary connection to each other or mesh networks on smartphones. A malicious node could drop messages instead of forwarding them as intended. Zhu et. al use the inspection game to calculate the probability to inspect a single node if it acts suspicious. They showed that using this model can reduce the detection overhead. The idea of using Game Theory to model such a system was used in this work.
 
-\begin{easylist}
-	\MyListProperties
-	# SIBRA \cite{Basescu.2016}
-	## General Idea
-	## Why it partially solves the problem
-	## Advantages
-	## Explain why to complex for SCIONLab
-	# Virtual Credit \cite{DennisMeyer.2017}
-	## General Idea
-	## Why it partially solves the problem
-	## Advantages
-	## Use the idea to define a greedy user (more credits = less greedy)
-	# \cite{Zhu.2014}
-	## General Idea
-	## Use for this work
-	# Prioritizing network traffic as a solution (QoP)
-	## Why this is not enough 
-	# Game Theory - Inspection game
-	## General idea
-	## Nash Equilibrium in mixed strategy
-	## How this can be applied to this thesis (probability)
-\end{easylist}
+\subsection{Inspection Game in other contexts}
+The \textit{Inspection Game}, part of the \textit{Game Theory}, is used in this work as a theoretical model for the monitoring. While described later in detail, the inspiration for this were from other applications. They are examples that the Inspection Game is a general construct with many application, even outside the topic of networking. Nozenzo et. al \cite{Nosenzo.2014} examined the effectiveness of this model in regards to bonus for comply and a fine for not. They showed that the existence of such a fine improves the behavior of the players but that a bonus has a low impact. 
+
+Avenhaus et. al \cite{Avenhaus.1996} showed the application of this game model for the nuclear arms control from the years 1961 to the present 1996. They described the cost of an inspection and that a constant inspection is not realizable because of limited resources. Also a real world application for it was done by Kirstein \cite{RolandKirstein.2009} to show the effects for doping in sport.
 
 \subfilebib % Makes bibliography available when compiling as subfile
 \end{document}
