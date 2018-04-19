@@ -77,6 +77,30 @@ The client API defines four different metric types. The \textit{counter} represe
 
 \section{Related Work}\label{chap:prevwork}
 
+This section will list and describe work by other people with similar problems or thoughts. It will show their difference to this work and why this work exists.
+
+\subsection{SIBRA} \label{sec:prevwork:sibra}
+
+The \textbf{S}calable \textbf{I}nternet \textbf{B}andwidth \textbf{R}eservation \textbf{A}rchitecture (SIBRA) is an approach against resource overuse by Basescu et. al \cite{Basescu.2016}. The architecture enables nodes to reserve a certain bandwidth for a time slot. This bandwidth is guaranteed for the flow and is not shared with other user on the path. The main reason to establish such a system were the increasing DDoS attacks and the flaws of the defenses against it. Over the last years the amount and size of DDoS attacks are increasing as shown in the life visualization \cite{GoogleInc.2013}. The largest recorded DDoS occurred on the 28th of February in 2018 on github.com with a peak of 1.35Tbps \cite{Kottler.01.03.2018}. SIBRA invented a mechanism that two nodes can communicate with each other even in the presence of malicious nodes disturbing the network.
+
+This was achieved by introducing three layers of contracts for a guaranteed bandwidth. Each of them differ in time and dimension: The \textbf{core} are \textit{long-term} contracts and are established between the core ASes of different ISDs. Within an ISD the ASes conclude contracts intermediate-term with each other which are called \textbf{steady}. They are used for a steady, but low bandwidth transition. A \textit{short-term} contract, called \textbf{ephemeral}, is conducted between two end-hosts. These are reserved for high bandwidth traffic. 
+
+A link's capacity is divided into three partition: 80\% is reserved for ephemeral path, 5\% for steady paths, and 15\% are for best-effort. An ephemeral path is created by sending a request through a steady path and contains the amount of bandwidth to reserve and a time slot to use. The default life time of such a path is 16 seconds and the time slot granularity is 4 seconds. A packet using a SIBRA reservation contains a flow ID, an expiration time, a bandwidth class, a path direction type and a reservation index. The SIBRA router maintain a \textit{bandwidth table} to store the reserved bandwidths of the router's neighbor, an accounting table to keep track of flow ids and their attributes, and a \textit{pending table} for pending reservation. A SIBRA packet with an invalid header will use the best-effort bandwidth.
+
+This enables SIBRA to efficiently control malicious flows. A botnet AS can be excluded from reserving bandwidth and the best-effort band is never disturbed. That mechanic solves the problems of this work and were already established and tested in SCION. The reason for this work is that SIBRA is very complex to implement and not suitable for SCIONLab's test environment. A simpler approach was needed to identify malicious user or prevent them.
+
+\subsection{Virtual Credit} \cite{DennisMeyer.2017}
+Another approach to reserve bandwidth and limit the abilities of malicious user was introduced by Meyer et. al for SCION. The base idea was that an AS can only use resources when it also provide them to the network. This was realized by introducing a \textit{virtual credit} an AS can use to buy capacity. It would only gain such a credit if it provides capacity. The intention was to motivate user not only use the networks resource but also provide them by establishing new connection or building new infrastructure elements like fiber cables or backbones.
+
+It was based on the monitoring system RIPE Atlas \cite{Ripenetworkcoordinationcentre.19.04.2018} which enables user to monitor traffic and send probe requests. To do so they need credits which they gain when they provide a usable probe.
+
+One virtual credit is worth 10 MBits/s of capacity to reserve without an expiration. When one AS requests such a connection to another AS, the second AS would get the credit the requester invested. Each AS starts with 100 credits which is worth of 1 GBit/s. This simple design prevents AS to use more bandwidth than they would provide. A malicious user would need other ASes to establish connection to it to gain credit and use it for a malicious attack.
+
+This alternative approach to prevent an overuse was not considered because it was easily exploitable as shown in the paper itself. A malicious AS can spawn multiple virtual ASes which connects to the malicious AS. This one now has the credits of the virtual ASes but they do not improve network. The malicious AS can use their credits to flood the network. Because of this exploits in such a basic concept it was not considered for this work.
+
+\subsection{Quality of Service}
+The legacy internet has a solution to priotorize 
+
 \begin{easylist}
 	\MyListProperties
 	# SIBRA \cite{Basescu.2016}
