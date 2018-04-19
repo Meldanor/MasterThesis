@@ -15,6 +15,33 @@ SCION, an acronym for \textbf{S}calability, \textbf{C}ontrol and \textbf{I}solat
 
 \autoref{fig:prequirement:scionStructure} shows an example SCION network from \cite{SCIONPaper}. This topology consists of \textbf{Is}olation \textbf{D}omains (ISD) and each node of it is considered an \textbf{A}utonomous \textbf{S}ystem (AS). They represent exactly one physical end-host, a whole companies network or an \textbf{I}nternet \textbf{S}ervice \textbf{P}rovider (ISP)'s network. Each ISD is administered and initially created by a small group of ASes, which are referred to \textit{Core} ASes and forms the \textit{Core} of an ISD. They are responsible to define a policy which applies to all member of the ISD and is called the \textbf{T}rust \textbf{R}oot \textbf{C}onfiguration (TRC). Concluding this each ISD has its own rules to create connection and also defines the name the ISD. The Core ASes are also connect with other ISDs and link their ISDs to them. Additionally an AS can belong to multiple ISDs at one time, which is the case for the AS \textbf{H}.
 
+
+
+\begin{figure}[h]
+	\centering
+	\begin{subfigure}{.48\linewidth}
+		\centering
+		\includegraphics[trim=19mm 214mm 105mm 19mm ,clip,height=0.28\textheight]{2015-SCION-short_3.pdf}
+		\caption{Four SCION ISDs with ISD Cores and ASes \cite{SCIONPaper}}
+		\label{fig:prequirement:scionStructure}
+	\end{subfigure}
+	\hfill
+	\begin{subfigure}{0.48\linewidth}
+		\centering
+		\begin{tikzpicture}
+		\node[anchor=south west,inner sep=0] at (0,0) {\includegraphics[trim=163mm 210mm 13mm 24mm ,clip,height=0.28\textheight]{2015-SCION-short_3.pdf}};
+		\fill[white,rotate=-7] (-0.5,3) rectangle (0.70,3.15);
+		\fill[white,rotate=37] (3.2,4.22) rectangle (3.7,4.35);
+		\end{tikzpicture}
+		\caption{Magnified view of an AS with its routers and servers \cite{SCIONPaper}}
+		\label{fig:prequirement:AsStructure}
+	\end{subfigure}
+	\caption{Structure of SCION with an example topology.}
+	\label{fig:prequirement:structureOfScion}
+\end{figure}
+
+Inside an AS (see \autoref{fig:prequirement:AsStructure}) exists multiple router to route the traffic from one link to another. Each link is administered by one \textit{border router}, while the \textit{internal router} forward the packets inside the AS itself.
+
 An AS needs to know the path to another AS to communicate to them. This routing problem is solved with a process called \textit{beaconing}. A core AS announces such a beaconing inside its ISDs and learns the different paths from a core AS to a non-core AS. The ASes respond to this beaconing and over time the topology is created. On the other side, a non-core AS explores by beaconing the paths to the core-AS. The same procedure is done for inter-ISD communication by the core-ASes. The up-segment from a non-core AS to the Core and the down-segment from the beaconing of a core-AS are merged together and send to the \textit{path-server}. This component handles routing requests from one AS to another AS and responds with a set of possible paths to take. The elements of this set depend on the TRC of the ISD. For example, one ISD does not want to enable multiple path communication and only responds with the first available path.
 
 One advantage of this structured routing is that a communication does not leave an ISD when it is not necessary. This enables to create ISDs for different security or efficiency scenarios. Packets are only routed in a trusted zone when they need to be. The legacy internet do not guarantee this behavior. A packet from OvGU-Magdeburg to ETH-Zuerich could be routed over different location in the world without control over it. If both of them were inside one ISD containing only research institutes, than the packet would be guaranteed to not leave this ISD because it is not necessary.
@@ -28,16 +55,11 @@ The legacy internet cannot be replaced at once but can only be updated or replac
 
 This description is only an overview about the complexity and mechanism of SCION, but this will be sufficient to understand the nature of this work. For further reading it is recommended to start with the paper of Adrian et. al\cite{SCIONPaper} and go into details with the published book of Adrian et. al\cite{SCIONBook}.
 
-\begin{figure}
-	\centering
-	\includegraphics[trim=19mm 214mm 105mm 19mm ,clip,width=0.5\linewidth]{2015-SCION-short_3.pdf}
-	\caption{Four SCION ISDs with ISD Cores and ASes \cite{SCIONPaper}}
-	\label{fig:prequirement:scionStructure}
-\end{figure}
+
 
 \subsection{SCIONLab}
 
-SCIONLab\footnote{\url{https://www.scionlab.org}, 18.04.2018} is the test environment to test out SCION and its functionality in a running network. Its current topology can be seen in \autoref{fig:prequirement:scionlabTopo}. The SCIONLab team is currently creating multiple application to run using the SCION network itself.
+SCIONLab\footnote{\url{https://www.scionlab.org}, 18.04.2018} is the test environment to test out SCION and its functionality in a running network. Its current topology can be seen in \autoref{fig:prequirement:scionlabTopo}. Any interested user is able to create an AS as a VM which is automatically configured and ready to deploy. They can choose different attachment points their AS is creating a connection to. This system enables user to simply test out SCION in a sandbox without additional impact.
 
 \begin{figure}
 	\centering
@@ -52,26 +74,6 @@ SCIONLab\footnote{\url{https://www.scionlab.org}, 18.04.2018} is the test enviro
 "Prometheus is an open-source systems monitoring and alerting toolkit [...]" \footnote{\url{https://prometheus.io/}, 18.04.2018}. This framework consisting of a \textit{Prometheus server} and an API to create and gather data about programs, which is implemented by the \textit{Prometheus clients}. Each client defines a data model of different \textit{metrics} to monitor. These metrics are collected by the Prometheus server in a given scrap interval and stored on the server side. A simple Web UI enables the user to write queries and analyze the data, for example extracting the maximum bandwidth at a given time.
 
 The client API defines four different metric types. The \textit{counter} represents a data which can only go up while the \textit{gauge} can also go down over time. An example for a counter is the total bandwidth in bytes since the border router start while a gauge can be the current memory usage. The two other types are the \textit{histogram}, which samples observations in different buckets, and the \textit{summary} which does the same as a counter but also calculates quantiles over a sliding time window. Each metric consists of the value itself as a double-precision floating point number and a UTC time stamp. The client defines the type of the metric and the name and continually updates the value. The metrics are exported over an HTTP based API. The endpoint is typically {\lstinline|http://[HOST]:[PORT]/metrics|} which responds with a list of all metrics and their values at the time of request. The Prometheus client API was already implemented in the border router, the path, the beaconing and the certificate server. An example of this is seen in \autoref{app:promMetric}
-
-\begin{easylist}
-    \MyListProperties
-    # SCION
-    ## Origins of SCION
-    ## Structure of SCION
-    ## \textit{Figure example topology}
-    ## Explain relevant components of an AS
-    ### Path Server + Path Discovery
-    ### Border Router
-    ## SCIONLab
-    ### Goal \& How it works
-    ### Coordinator in ETH Zurich
-    ## Multipath method
-    ### How does it work
-    ### \textit{Figure of example}
-    ### Explanation of example
-    ### Difference to legacy methods
-    # Other prerequisites
-\end{easylist}
 
 \section{Related Work}\label{chap:prevwork}
 
