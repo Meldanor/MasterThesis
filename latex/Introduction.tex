@@ -7,21 +7,23 @@
 % An image right here at the top can look really cool!
 
 \section{Introduction}
-The current internet  has exceeded any expectations. The engineers creating it in the 1960 couldn't even imagine the impact and various use of their creation. Only few user participated in the early internet without considering security and protection against attacks as a key aspect. There were so few people that they knew who they can trust and who not.
+The current Internet has exceeded any expectations. The engineers creating it in the 1960s couldn't even imagine the impact and various use of their creation. Only few users participated in the early Internet without considering security and protection against attacks as a key aspect. There were so few people that they knew who they can trust and who not.
 
-Today there are billions of user and billions of devices connected to each other \cite{MiniwattsMarketingGroup.31.12.2017}. There are malicious user trying to steal account information or fiends who overload resources and disrupt services. More and more services are created each year running on the internet and trying to provide a service to user. Each company has to know the newest security risks and attack types to be competitive and trustworthy. 
+Today there are billions of users and devices connected to each other \cite{MiniwattsMarketingGroup.31.12.2017}. Unfortunately, there are also malicious user trying to disturb the network by overusing resources or manipulation the members. More and more services are created each year running on the Internet and trying to provide a service to users. Each company has to know the newest security risks and attack types to be competitive and trustworthy. 
 
-There are many types of problems with the current internet protocols. There are far more fixes and solutions with them, but each of them has to be accepted by the majority of the users and supported by the network device manufacturers. The acceptance of IPv6, a protocol released in 1996, is low in 2017 but the internet ran out of Ipv4 addresses in 2011 \cite{ICANN.03.02.2011}.
+There are many types of problems with the current Internet protocols. There are far more fixes and solutions with them, but each of them has to be accepted by the majority of the users and supported by the network device manufacturers. The acceptance of IPv6, a protocol released in 1996, is low in 2017 but the Internet ran out of IPv4 addresses in 2011 \cite{ICANN.03.02.2011}.
 
-Instead of fixing the current internet and having a brown field situation there are also people creating a better green field solution. They want to solve the problems without limitations of the current protocols and their implicit fundamental problems. One of the solutions is \textbf{SCION}, an acronym for \textbf{S}calability, \textbf{C}ontrol and \textbf{I}solation \textbf{O}n next-generation \textbf{N}etworks, which will be explained in detail in \autoref{chap:basics}.
+Instead of fixing the current Internet and trying to patch the structural problems from past designs, there are also people creating a better green field solution. They want to solve the problems without limitations of the current protocols and their implicit fundamental problems. One of the solutions is \textbf{SCION}, that stands for \textbf{S}calability, \textbf{C}ontrol and \textbf{I}solation \textbf{O}n next-generation \textbf{N}etworks, which will be explained in detail in \autoref{chap:basics}.
 
 
 \section{Motivation}
-One of the many problems described previously is the strong increase of data usage on the internet. The DE-CIX in Frankfurt, Germany, a data carrier, registers with each year an higher amount of data. The graph in \autoref{fig:intro:decixData} shows this increase . In 2014 the highest registered bits per second was around three tera bytes / s. Three years later in 2017 the peak was at 6 tera byte, twice the amount. 
+One of the many issues is the strong increase of traffic on the Internet. The DE-CIX in Frankfurt, Germany, a data carrier, accounts each year a higher amount of data as shown in \autoref{fig:intro:decixData}. In 2014 the peak was around three TB/s. Three years later in 2017 the peak was at 6 TB/s, i.e. twice the amount. 
 
-In the advent of video streaming in form of Video on Demand (VOD) via services like Youtube and Netflix and live video streaming like Twitch the data usage of the users increased rapidly. There is also an increasing demand for higher resolutions, which results in bigger video sizes. The current standard of Full HD for a video will be succeeded by new standards like the 4k. The user also demands for a higher refresh rate. Currently the videos are sent with 30fps, but there is a benefit sing 60fps or even 144fps for real fast movements.
+In the advent of video streaming in form of Video on Demand (VOD) via services like YouTube\footnote{\url{https://www.youtube.com}, 20.04.2018} and Netflix\footnote{\url{https://www.netflix.com}, 20.04.2018} and live video streaming like Twitch\footnote{\url{https://www.twitch.tv/}, 20.04.2018} the data usage of the users increased rapidly. There is also an increasing demand for higher resolutions, which results in bigger video sizes. The current standard of Full HD for a video will be succeeded by new standards like the 4K. The user also demands for a higher frame rate. Currently, the videos are sent with 30fps, but there is a benefit using 60fps or even 144fps for really fast movements.
 
-But videos are not the only reason for a higher bandwidth usage. Big Data companies processing petabytes of data each day rely on a stable and high bandwidth connection. There is also a trend with Internet-of-Things (IoT) to install small devices which collect and send data through the internet.
+But videos are not the only reason for a higher bandwidth usage. Big Data companies processing petabytes of data each day rely on a stable and high bandwidth connection. There is also a trend with Internet-of-Things (IoT) to install small devices which collect and send data through the Internet.
+
+The stability of the current Internet is also a motivation to improve the structure of it. Attacks like \textbf{D}istributed \textbf{D}enial-\textbf{o}f-\textbf{S}ervice (DDos) using the resources to disrupt the operation of companies or governments are increasing in size and frequency \cite{GoogleInc.2013}. But also technical problem like a power outage \cite{DECIX.10.04.2018} or an environmental hazard (earthquakes, floods) can disturb the stability of the Internet when a central node fails. 
 
 \begin{figure}
     \centering
@@ -31,9 +33,9 @@ But videos are not the only reason for a higher bandwidth usage. Big Data compan
     \label{fig:intro:decixData}
 \end{figure}
 
-One solution to solve this problems is to scale-up and install more and more bandwidth capacities like fiber cables or newer devices. This is inefficient and consumes probably more energy and increases so the running costs. There are also physical limits for improving the performance so that a small benefit results in high costs.
+One solution to solve this problems is to scale-up and install more and more bandwidth capacities like fiber cables or newer devices. This is inefficient and consumes probably more energy and thus increases the running costs. There are also physical limits for improving the performance so that a small benefit results in high costs.
 
-Another solution is to better utilize the current resources as it is done with the multi path process in SCION. The user can split their data and sent the packets via multiple connections. This leads to a better usage of the available bandwidth in the network. In currents internet this is not possible, because the router are deciding for themselves which route to take to the destination. 
+Another solution is to better utilize the current resources as it is done with the multi-path feature in SCION. Here the users can split their data and sent the packets via multiple connections. This leads to a better usage of the available bandwidth in the network. In the current Internet this is not possible, because the router are deciding for themselves which route to take to the destination. 
 
 \begin{figure}[h]
     \centering
@@ -61,17 +63,19 @@ Another solution is to better utilize the current resources as it is done with t
 \end{figure}
 
 
-This new method shall encourages user to better utilize the network, but it can also be misused. In \autoref{fig:intro:exampleMultipath} is an example visualized. Each AS is connected with each other via a 1 gigabit/s connection. AS 1-1 can send AS 1-4 using single path data with a 1 gigabit/s directly. It could also uses the paths 1-1$\rightarrow$1-2$\rightarrow$1-4 and 1-1$\rightarrow$1-3$\rightarrow$1-4 to sends its data and increase its bandwidth to ideally 3 gigabit/s, if there is zero delay on the hops. This possibility rises the questions how to monitor and enforce the bandwidth usage of a one particular AS. When using a single path connection the measurement point is at the destination. If this AS exceeds its limit the destination router can drop packets. This solution is not possible in a multi path communication. It is important to find an answer for this question to avoid misuse.
+This new method shall encourages user to better utilize the network, but it can also be misused. In \autoref{fig:intro:exampleMultipath} an example is visualized. Each AS, but not 1-2 to 1-3 is connected with each other via a 1 GBit/s connection. AS 1-1 can send AS 1-4 data using single path with a 1 GBit/s directly. It could also uses the paths 1-1$\rightarrow$1-2$\rightarrow$1-4 and 1-1$\rightarrow$1-3$\rightarrow$1-4 to send its data and increase its bandwidth to ideally 3 gigabit/s, if there is zero delay on the hops. This possibility rises the questions how to monitor and enforce the bandwidth usage of a one particular AS. When using a single path connection the measurement point is at the destination. If this AS exceeds its limit the destination router can drop packets. This solution is not possible in a multi-path environment. It is important to find an answer for this question to avoid misuse.
 
 \section{Goals} \label{sec:intro:goals}
+
+The work was planned and executed with the following described goals in mind. They will be evaluated in \autoref{chap:eva} and tested if their have been achieved by the proposed approach in this work.
      \begin{easylist}
         \MyNumberedListProperties
-        # The thesis' main goal is to achieve a fair usage of bandwidth at multi-path communication in SCIONLab. The proposed solution must not use more resources (computation time, bandwidth) as it will gains through using the bandwidth more efficiently. A solution with a 100\% accuracy is useless if it uses too much resources. Because of this, the goals must be always reach a trade-off between efficiency (resource usage) and effects (resource gain).        
+        # The thesis' main goal is to achieve a fair usage of bandwidth using multi-path communication in SCION. The proposed solution must not use more resources (computation time, bandwidth) than it will gain through using the bandwidth more efficiently. A solution with a 100\% accuracy is not necessary if it uses too much resources. Because of this, the goals must always reach a trade-off between efficiency (resource usage) and effect (resource gain).        
         # The first goal to verify is, that the proposed solution has to detect a greedy user as accurately as possible with the least possible performance impact.
         # The solution must also provide parameters to increase the accuracy of the detection rate, even when the performance impact will be higher. This is important for an adaption in systems who requires an higher detection.
-        # It is also a goal to create a scalable solution working with topologies with up to 100 ASes. This goal will be achieved by minimizing the impact on network traffic for necessary protocols.        
+        # It is also a goal to create a scalable solution working with topologies with a number in the order of hundreds or thousand nodes. This goal will be achieved by minimizing the impact on network traffic for necessary protocols.
         # The solution must be general enough for other network types with multi-path capability.        
-        # Based on the previous goal, this thesis has to provide an implementation for SCION which can be merged and used inside SCIONLab.
+        # Based on the previous goal, this thesis will provide an implementation for SCION which can be used inside SCIONLab.
     \end{easylist}
 
 \section{Main Contribution}
