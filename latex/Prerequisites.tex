@@ -22,7 +22,7 @@ SCION, an acronym for \textbf{S}calability, \textbf{C}ontrol and \textbf{I}solat
 	\begin{subfigure}{.48\linewidth}
 		\centering
 		\includegraphics[trim=19mm 214mm 105mm 19mm ,clip,height=0.28\textheight]{2015-SCION-short_3.pdf}
-		\caption{Four SCION ISDs with ISD Cores and ASes \cite{SCIONPaper}}
+		\caption{Four SCION ISDs with ISD Cores and ASes \cite[Figure~1]{SCIONPaper}}
 		\label{fig:prequirement:scionStructure}
 	\end{subfigure}
 	\hfill
@@ -33,7 +33,7 @@ SCION, an acronym for \textbf{S}calability, \textbf{C}ontrol and \textbf{I}solat
 		\fill[white,rotate=-7] (-0.5,3) rectangle (0.70,3.15);
 		\fill[white,rotate=37] (3.2,4.22) rectangle (3.7,4.35);
 		\end{tikzpicture}
-		\caption{Magnified view of an AS with its routers and servers \cite{SCIONPaper}}
+		\caption{Magnified view of an AS with its routers and servers \cite[Figure~2b]{SCIONPaper}}
 		\label{fig:prequirement:AsStructure}
 	\end{subfigure}
 	\caption{Structure of SCION with an example topology.}
@@ -89,7 +89,7 @@ A link's capacity is divided into three partition: 80\% is reserved for ephemera
 
 This enables SIBRA to efficiently control malicious flows. A botnet AS can be excluded from reserving bandwidth and the best-effort band is never disturbed. That mechanic solves the problems of this work and were already established and tested in SCION. The reason for this work is that SIBRA is very complex to implement and not suitable for SCIONLab's test environment. A simpler approach was needed to identify malicious user or prevent them.
 
-\subsection{Virtual Credit} \cite{DennisMeyer.2017}
+\subsection{Virtual Credit} \cite{Meyer.2017}
 Another approach to reserve bandwidth and limit the abilities of malicious user was introduced by Meyer et. al for SCION. The base idea was that an AS can only use resources when it also provide them to the network. This was realized by introducing a \textit{virtual credit} an AS can use to buy capacity. It would only gain such a credit if it provides capacity. The intention was to motivate user not only use the networks resource but also provide them by establishing new connection or building new infrastructure elements like fiber cables or backbones.
 
 It was based on the monitoring system RIPE Atlas \cite{Ripenetworkcoordinationcentre.19.04.2018} which enables user to monitor traffic and send probe requests. To do so they need credits which they gain when they provide a usable probe.

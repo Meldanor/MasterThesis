@@ -9,9 +9,9 @@
 \section{Introduction}
 The current internet  has exceeded any expectations. The engineers creating it in the 1960 couldn't even imagine the impact and various use of their creation. Only few user participated in the early internet without considering security and protection against attacks as a key aspect. There were so few people that they knew who they can trust and who not.
 
-Today there are billions of user and billions of devices connected to each other \todo{Source for this}. There are malicious user trying to steal account information or fiends who overload resources and disrupt services. More and more services are created each year running on the internet and trying to provide a service to user. Each company has to know the newest security risks and attack types to be competitive and trustworthy. 
+Today there are billions of user and billions of devices connected to each other \cite{MiniwattsMarketingGroup.31.12.2017}. There are malicious user trying to steal account information or fiends who overload resources and disrupt services. More and more services are created each year running on the internet and trying to provide a service to user. Each company has to know the newest security risks and attack types to be competitive and trustworthy. 
 
-There are many types of problems with the current internet protocols. There are far more fixes and solutions with them, but each of them has to be accepted by the majority of the users and supported by the network device manufacturers. The acceptance of IPv6, a protocol released in 1996, is in 2017 low but the internet ran out of Ipv4 addresses years ago. \todo{More accurate numbers/dates!}.
+There are many types of problems with the current internet protocols. There are far more fixes and solutions with them, but each of them has to be accepted by the majority of the users and supported by the network device manufacturers. The acceptance of IPv6, a protocol released in 1996, is low in 2017 but the internet ran out of Ipv4 addresses in 2011 \cite{ICANN.03.02.2011}.
 
 Instead of fixing the current internet and having a brown field situation there are also people creating a better green field solution. They want to solve the problems without limitations of the current protocols and their implicit fundamental problems. One of the solutions is \textbf{SCION}, an acronym for \textbf{S}calability, \textbf{C}ontrol and \textbf{I}solation \textbf{O}n next-generation \textbf{N}etworks, which will be explained in detail in \autoref{chap:basics}.
 
@@ -27,7 +27,7 @@ But videos are not the only reason for a higher bandwidth usage. Big Data compan
     \centering
     \includegraphics[width=0.95\linewidth]{20171210_1515_decix_data}
     \caption*{\tiny{ \url{https://www.de-cix.net/en/locations/germany/frankfurt/statistics} (10.12.2017)}}
-    \caption{5 year statistics of DE-CIX traffic}
+    \caption{5-year graph of the average exchanged traffic at DE-CIX in Frankfurt, Germany}
     \label{fig:intro:decixData}
 \end{figure}
 
@@ -67,7 +67,7 @@ This new method shall encourages user to better utilize the network, but it can 
      \begin{easylist}
         \MyNumberedListProperties
         # The thesis' main goal is to achieve a fair usage of bandwidth at multi-path communication in SCIONLab. The proposed solution must not use more resources (computation time, bandwidth) as it will gains through using the bandwidth more efficiently. A solution with a 100\% accuracy is useless if it uses too much resources. Because of this, the goals must be always reach a trade-off between efficiency (resource usage) and effects (resource gain).        
-        # The first goal to verify is, that the proposed solution has to detect a greedy user at least at 85\% with a minimal performance impact of 5\%.         
+        # The first goal to verify is, that the proposed solution has to detect a greedy user as accurately as possible with the least possible performance impact.
         # The solution must also provide parameters to increase the accuracy of the detection rate, even when the performance impact will be higher. This is important for an adaption in systems who requires an higher detection.
         # It is also a goal to create a scalable solution working with topologies with up to 100 ASes. This goal will be achieved by minimizing the impact on network traffic for necessary protocols.        
         # The solution must be general enough for other network types with multi-path capability.        
