@@ -25,7 +25,7 @@ The \textbf{1.} of the defined goals (\autoref{sec:intro:goals}) is achieved by 
 
 All in all showed this work the potential use of SpeedCam to monitor the traffic inside a network.
 
-\section{Future Work}
+\section{Future Work} \label{sec:concl:future}
 There are multiple improvements of the proposed work and also next steps what to do. These ideas will be described in this section.
 
 The most important idea would be to measure the hit rate of the inspection as proposed in the general concept. This needs the information about the capacity of a connection. It can be retrieved in SCION from the coordinator\footnote{\url{https://github.com/netsec-ethz/scion-coord}, 15.04.2018}, but at this point of time the information was not reliable enough. A solution would be to create a protocol which is implemented by the inspector unit and all ASes via their border routers. This protocols could exchange the information about the capacity and reduce the amount of transfered data. It could also be used to issue a punishment by the inspector. It could also solve the problem with the missing exposed interface to monitor the data. This approach was considered in this work but was discarded because it required changes on clients side which were too complicate to realize.

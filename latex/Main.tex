@@ -6,10 +6,10 @@
 This chapter will describe the following three parts. At first it will outline the general idea of the SpeedCam approach for any network type. After this it will describe the specific adaptation for the SCION network. At last there will be an explanation what has to be changed for SCIONLab and the reason for that.
 
 \section{Overview}
-SpeedCam is a heuristic approach to monitor network traffic with regards to limited resources. It analyses the network structure and decides based on the heuristic where are good places to monitor local traffic. The approach also tries to reduce the necessary amount of probes to minimize the resource impact an the machines.
+SpeedCam is a heuristic approach to monitor network traffic with regards to limited resources. It analyses the network structure and decides based on the heuristic where are good places to monitor local traffic. The approach also tries to reduce the necessary amount of probes to minimize the resource impact on the machines while achieving a high detection accuracy.
 
 \section{Inspection game}
-The idea behind SpeedCam is based on the \textit{Inspection Game} in Game Theory \cite{Dutta.1999, Owen.2013}. Inside the game is a \textit{task} to be done under defined \textit{rules}. The execution of the task can be simpler, more efficient or more effective with a violation of these rules. The task is performed by one of the two parties, the \textit{inspectee} and the compliance of the rules costs resources and is monitored by the second party, the \textit{inspector}. The inspectee has a general interest to break the rules to perform better, while the inspector wants to reduce his amount of inspections to use as few as possible resources. The possible combination are shown in \autoref{tab:inspectionGameMatrix}.
+The idea behind SpeedCam is based on the \textit{Inspection Game} in Game Theory \cite{Dutta.1999, Owen.2013}. Inside the game there is a \textit{task} to be done under defined \textit{rules}. The execution of the task can be simpler, more efficient or more effective with a violation of these rules. The task is performed by one of the two parties, the \textit{inspectee} and the compliance of the rules costs resources and is monitored by the second party, the \textit{inspector}. The inspectee has a general interest to break the rules to perform better, while the inspector wants to reduce his amount of inspections to use as few as possible resources. The possible combinations are shown in \autoref{tab:inspectionGameMatrix}.
 
 \begin{table}[h]
     \centering
@@ -23,19 +23,19 @@ The idea behind SpeedCam is based on the \textit{Inspection Game} in Game Theory
     \label{tab:inspectionGameMatrix}
 \end{table}
 
-The cases $B$ and $C$ are good investments of the inspectors limited resources. In the first one he didn't inspect while the task was performed without violation and in the second one the inspector found the culprit. For case $A$ the resources of the inspector were wasted because there was no reason to inspect. The inspector failed in its task in case $D$, because he missed a violation of the rules by not investing the resources.
+The cases $B$ and $C$ are good investments of the inspectors' limited resources. In the first one he didn't inspect while the task was performed without violation and in the second one the inspector found the culprit. For case $A$ the resources of the inspector were wasted because there was no reason to inspect. The inspector failed in its task in case $D$, because he missed a violation of the rules by not investing the resources.
 
 Because of the shown cases and its results, it is obvious that a \textit{pure strategy} doesn't make sense in this game. When the inspector always inspects he will waste resources and when the inspector always ignores he fails his task. Instead of a pure strategy there must exist a \textit{mixed strategy} defined by probabilities for each action to be chosen to achieve a Nash equilibrium. At that point the inspector nor its inspectee would not gain any benefit from changing their strategy.\cite{nash1950equilibrium}
 
 
 \section {Generalized concept} \label{sec:main:generalconcept}
-The previously described form of the Inspection game is adopted for networks for this work. The \textit{nodes} of a network are the \textit{inspectees}, their \textit{task} is to \textit{transfer} much data in a short time. The \textit{rule} for all nodes is, that a transaction of data \textit{shouldn't exceed the link limits} or disturb other nodes' transfer. This limits have been agreed between both partner and can be either a fraction of the physical limit or the complete possible bandwidth depending on how many user shares the medium. A \textit{detected violation} of these limits or rules can result in throttling the bandwidth or even exclude the node from the network, temporary or permanently. A node can try to exceed the limits and so breaking the established rules with the interest to use the additional bandwidth to transfer data faster.
+The previously described form of the Inspection game is adopted for networks for this work. The \textit{nodes} of a network are the \textit{inspectees}, their \textit{task} is to \textit{transfer} much data in a short time. The \textit{rule} for all nodes is, that a transaction of data \textit{shouldn't exceed the link limits} or disturb other nodes' transfer. These limits have been agreed between both partner and can be either a fraction of the physical limit or the complete possible bandwidth depending on how many users share the medium. A \textit{detected violation} of these limits or rules can result in throttling the bandwidth or even exclude the node from the network, temporary or permanently. A node can try to exceed the limits and so breaking the established rules with the interest to use the additional bandwidth to transfer data faster.
 
-The \textit{inspector} in such a game has the possibility to monitor a nodes' network traffic. Monitoring a node costs computation resources such as memory or CPU cycles. Both can be critical for a switch to send packets. Therefore an inspection, necessary or not, will have an impact on the network throughput. The challenge of the inspector is to only monitor when a node is exceeding its limits. This will be presented in this work as the SpeedCam approach. These will give the inspector a heuristic with the goal to increase the amount of cases for $B$ and $C$ and to reduce it for $A$ (not wasting resources) and $D$ (fairness for network member).
+The \textit{inspector} in such a game has the possibility to monitor a nodes' network traffic. Monitoring a node costs computation resources such as memory or CPU cycles. Both can be critical for a switch to send packets. Therefore an inspection, necessary or not, will have an impact on the network throughput. The challenge of the inspector is to only monitor when a node is exceeding its limits. This will be presented in this work as the SpeedCam approach. It will give the inspector a heuristic with the goal to increase the amount of cases for $B$ and $C$ and to reduce it for $A$ (not wasting resources) and $D$ (fairness for network member).
 
-The general concept of SpeedCam applies to types of networks which meet the following requirements. The network must consist of \textit{nodes}, ASes, and \textit{links}, which connect only two ASes. The nodes and links must form an undirected graph. For SpeedCam it is not necessary that the graph must be known in the first place nor to be static. This is important because real networks tend to be dynamic and decentralized with only partial knowledge about its structure. The inspector must have access to this network in such a form, that he can gain knowledge about the networks structure and monitor a nodes' traffic.
+The general concept of SpeedCam applies to types of networks which meet the following requirements. The network must consist of \textit{nodes}, ASes, and \textit{links}, which connect only two ASes. The nodes and links must form an undirected graph. For SpeedCam it is not necessary that the graph must be known in the first place nor to be static. This is important because real networks tend to be dynamic and decentralized with only partial knowledge about its structure. The inspector must have access to this network in such a form, that he can gain knowledge about the network structure and monitor a nodes' traffic.
 
-When the requirements are met the inspector can be run as a component. He executes the SpeedCam approach and stores the necessary information about the nodes. It is described in this work as a centralized component, but it can be split into multiple inspectors, each responsible for a subnetwork. 
+When the requirements are met the inspector can be run as a component. It executes the SpeedCam approach and stores the necessary information about the nodes. It is described in this work as a centralized component, but it can be split into multiple inspectors, each responsible for a subnetwork. 
 
 One run of the SpeedCam approach is called an \textit{episode} and is broken down in four phases, as shown in \autoref{fig:main:phasesOrder}.
 
@@ -51,11 +51,11 @@ The exploration phase is the 0-th phase because it can be skipped if the network
 \subsection{Exploration} \label{sec:main:explorationphase}
 This phase has the goal to create an undirected graph of the network to monitor. The structure of the network is necessary for the following phases. 
 
-For the general concept of the SpeedCam approach exists multiple possibilities to explore the underlying network. Because the only assumption about the network is that nodes are connected via links, these possibilities are also general and are lacking of details how to retrieve them. In later discussed specialized forms of the SpeedCam approach these are given.
+For the general concept of the SpeedCam approach there exists multiple possibilities to explore the underlying network. Because the only assumption about the network is that nodes are connected via links, these possibilities are also general and are lacking of details how to retrieve them. In later discussed specialized forms of the SpeedCam approach these are given.
 
 The first possibility is to manually create the graph. A network, virtual or physically present, must be created by an entity, be it a humanoid administrator or a program. Every change of the network can be logged and used to create the graph. This is obviously a tedious task and not error prone. 
 
-Another possibility is to automatically explore the network from a known starting point, for example a central node. For each node it must be possible to retrieve the connections of the node and their targets. With these properties it is possible to explore the graph with any traversal algorithm like Breadth-First, Depth-First, Djikstra or Floyd-Warshall. \cite{Sedgewick.2011} Using these algorithm is an established way to explore the network, but requires access to each node or a protocol to retrieve the edges of a node.
+Another possibility is to automatically explore the network from a known starting point, for example a central node. For each node it must be possible to retrieve the connections of the node and their targets. With these properties it is possible to explore the graph with any traversal algorithm like Breadth-First, Depth-First, Djikstra or Floyd-Warshall. \cite{Sedgewick.2011} Using these algorithms is an established way to explore the network, but requires access to each node or a protocol to retrieve the edges of a node.
 
 The exploration phase itself needs to be constantly repeated to react to changes inside the network. Inactive or disconnected nodes don't need to be monitored and can be removed from the graph. This reduces the graph which improves the performance impact by using fewer memory and fewer CPU cycles to iterate over.
 
@@ -78,7 +78,7 @@ where:
     N     &  Set of all nodes
 \end{conditions}
 
-Another criteria of this phase is the randomness of the selection process. The inspector shall not be predictable for the inspectees, otherwise they will have an advantage and may avoid an inspection. When a set of probes is predictable for the inspectees, they can decide to violate the rules outset of this set and chose other paths or times to transfer their data. 
+Another criterion of this phase is the randomness of the selection process. The inspector shall not be predictable for the inspectees, otherwise they will have an advantage and may avoid an inspection. When a set of probes is predictable for the inspectees, they can decide to violate the rules outset of this set and chose other paths or times to transfer their data. 
 
 For example, \autoref{fig:intro:exampleMultipath} shows a simple network. Lets assume, that the inspector is watching the node \textbf{1-2} and all the nodes inside the network are knowing this fact. With that knowledge, they will choose the path 1-1$\rightarrow$1-3$\rightarrow$1-4 instead and avoid the inspection. This problem is even more present for a real network, because they tend to be complex and provide even more alternative routes to avoid an inspection.
 
@@ -91,11 +91,11 @@ The SpeedCam approach uses a candidate score $cs(n)$ to determine the probabilit
 \subsubsection{Criteria} \label{sec:main:selectionPhase:criteria}
 The following presented criteria are considered \textbf{static} and can be calculated without a history of past measurements. They require the topology of the network.
 
-\textbf{Degree} [ $deg(n)$ ]: The sum of incoming and outgoing links of node. This criteria represents the potential for a good transfer hub and can be used by other nodes as a central transfer hub. The higher the degree of a node, the higher the possibility to monitor a great range of traffic sources. A node on the edge of the network, a sink, has a low degree, mostly 1. These are uninteresting because they can only monitor the traffic of this node. A good real example for a node with a high degree are the nodes of submarine cables, as shown here\footnote{\url{https://www.submarinecablemap.com}, 02.04.2018}. They have the ability to connect two continents with each other and thus provide a good point to measure traffic.
+\textbf{Degree} [ $deg(n)$ ]: The sum of incoming and outgoing links of node. This criterion represents the potential for a good transfer hub and can be used by other nodes as a central transfer hub. The higher the degree of a node, the higher the possibility to monitor a great range of traffic sources. A node on the edge of the network, a sink, has a low degree, mostly 1. These are uninteresting because they can only monitor the traffic of this node. A good real example for a node with a high degree are the nodes of submarine cables, as shown here\footnote{\url{https://www.submarinecablemap.com}, 02.04.2018}. They have the ability to connect two continents with each other and thus provide a good point to measure traffic.
 
-\textbf{Total capacity} [ $cap(n)$ ]: The sum of the connection capacity of a node. The capacity is the physical or between partners agreed limit to transfer bytes per second. This is similar to the \textbf{Degree}, but it differs in one aspect: The degree is only a indicator about the possible connectivity, but not for the possible throughput of traffic. A node with a high capacity can be preferred over a node with a high degree and lower capacity to transfer data. Because of this difference the two criteria are separate.
+\textbf{Total capacity} [ $cap(n)$ ]: The sum of the connection capacity of a node. The capacity is the physical or between partners agreed limit to transfer bytes per second. This is similar to the \textbf{Degree}, but it differs in one aspect: The degree is only an indicator about the possible connectivity, but not for the possible throughput of traffic. A node with a high capacity can be preferred over a node with a high degree and lower capacity to transfer data. Because of this difference the two criteria are separate.
 
-The now following criteria are \textbf{dynamic} and requires a history of the past episodes. The amount of hold episodes is limited by the size of the network, because is needs memory per node. As seen later, the length of saved history will also have an impact on the quality of the selection process.
+The now following criteria are \textbf{dynamic} and require a history of the past episodes. The amount of hold episodes is limited by the size of the network, because is needs memory per node. As seen later, the length of saved history will also have an impact on the quality of the selection process. \todo{Ändern, weil es nur noch eines ist}
 
 \textbf{Average activity} [ $\overline{act_{t_1,t_2}}(n)$ ]: The relation between possible and used capacity of a node in a time interval between $t_1$ and $t_2$. The time span can be of any resolution, but should be consistent. 
 
@@ -105,7 +105,7 @@ The now following criteria are \textbf{dynamic} and requires a history of the pa
 
 Storing the timespan for an episode gives the possibility to create a profile for a node to be used by the selection process. The selection itself can now be time based. A node with a high activity in the morning can receive a higher candidate score than a node with a high activity in the evening. This can increase the quality of the set.
 
-The meaningfulness of that criteria depends of the length on the history. A short history maybe represents a inaccurate result of the node, while a long history can hold outdated information about the behaviour of that node. The evaluation part will show the influence of the amount of episodes.
+The meaningfulness of this criterion depends of the length on the history. A short history maybe represents an inaccurate result of the node, while a long history can hold outdated information about the behavior of that node. The evaluation part will show the influence of the amount of episodes.
 
 \subsubsection{Candidate score}
 
@@ -141,7 +141,7 @@ where:
 
 \subsubsection{SpeedCam amount}
 
-Now exists a list of candidates with an assigned probability to be selected based on their candidate score. The inspector must now select $k$ \textit{SpeedCams} from this set. The size of $k$ should scale with the network size $|N|$, but as discussed earlier it should be as small as possible. The question of this phase is how many nodes do the inspector needs to deploy to find a greedy user with a high accuracy? There are a few possible scales, which were discussed in this work:
+Now exists a list of candidates with an assigned probability to be selected based on their candidate score. The inspector must now select $k$ \textit{SpeedCams} from this set. The size of $k$ should scale with the network size $|N|$, but as discussed earlier it should be as small as possible. The question of this phase is how many nodes does the inspector need to deploy to find a greedy user with a high accuracy? There are a few possible scales, which were discussed in this work:
 
 \textbf{Constant} [ $K$ ]: A constant amount of nodes will be selected, ignoring the size of the network. The advantage is the predictability of the computation time and is suitable for static networks. But it is assumed that one node in a dynamic network increasing over time is not sufficient to achieve a high enough precision.
 
@@ -149,7 +149,7 @@ Now exists a list of candidates with an assigned probability to be selected base
 
 \textbf{Linear} [ $x\cdot |N|, 0 \leq x\ll1$ ]: A linear amount of SpeedCams will need more resources as the logarithmic approach, but will also raise the accuracy to sufficient levels. The factor $x$ must be much-less than 1, otherwise the inspector will utilize half the network and this contradicts the goal to use as few resources as possible. The evaluation will use $x=0.1$, $x=0.2$ and $x=0.33$.
 
-The different scale effects are visualized in \autoref{fig:main:concept:scaling} when the network is expanding over time. The upper graph shows only one ISD, while the bottom graph shows the explored graph with ISD 1 and now discovered ISD 2 . A red circle indicates, that this node is selected. The top row from a) to c) shows a network of te nodes, while the bottom row from d) to f) expands this networks to 16 nodes. 
+The different scale effects are visualized in \autoref{fig:main:concept:scaling} when the network is expanding over time. The upper graph shows only one ISD, while the bottom graph shows the explored graph with ISD 1 and now discovered ISD 2 . A red circle indicates, that this node is selected. The top row from a) to c) shows a network of the nodes, while the bottom row from d) to f) expands this network to 16 nodes. 
 
 \begin{figure}
 	\centering
@@ -410,9 +410,9 @@ The different scale effects are visualized in \autoref{fig:main:concept:scaling}
 
 \subsubsection{Select SpeedCams} \label{sec:main:selectionPhase:selecting}
 
-The selection of SpeedCam from the candidates itself is a straight forward process. Iterate over all nodes, generate a random number\footnote{It is sufficient for this work to use a weak pseudo random generator} from 0 to 1 (exclusive) $p$ and if $P_{sc}(n) \geq p$, then add the node $n$ to the selected set. The iteration if over, when there enough speed cams are selected.
+The selection of SpeedCam from the candidates itself is a straight forward process. Iterate over all nodes, generate a random number\footnote{It is sufficient for this work to use a weak pseudo random generator} from 0 to 1 (exclusive) $p$ and if $P_{sc}(n) \geq p$, then add the node $n$ to the selected set. The iteration is over, when enough speed cams were selected.
 
-The order of the candidates matters, because $k$ limits the size of the target set. This problem is shown in \autoref{fig:main:candidateSelectionOrder}. In \autoref{fig:main:selectionSorted} they are sorted by their probability. The loop starts at candidate with the highest probability. The chance, that $p$ is high enough that $n$ is selected, is higher for later $n$. Concluding from this, the chance for $n=3$ to become a SpeedCam is lower in case \autoref{fig:main:selectionSorted} than in the case \autoref{fig:main:selectionUnsorted}. Because of time constrains for this work, this change is not evaluated.
+The order of the candidates matters, because $k$ limits the size of the target set. This problem is shown in \autoref{fig:main:candidateSelectionOrder}. In \autoref{fig:main:selectionSorted} they are sorted by their probability. The loop starts at the candidate with the highest probability. The chance, that $p$ is high enough that $n$ is selected, is higher for later $n$. Concluding from this, the chance for $n=3$ to become a SpeedCam is lower in case \autoref{fig:main:selectionSorted} than in the case \autoref{fig:main:selectionUnsorted}. Because of time constrains for this work, this change is not evaluated.
 \begin{figure}[h]
     \begin{subfigure}{.45\linewidth}
         \centering
@@ -558,10 +558,10 @@ The choice of resolution is based on the amount of available computation power a
 
 The results of the SpeedCams are sent to the inspector and will be processed by it in the next phase, the conclusion.
 
-\subsection{Conclusion} \label{sec:main:conclusionphase}
+\subsection{Conclusion} \label{sec:main:conclusionphase} \todo{Umbennen in Decision -> Auch Graphiken ändern}
 The conclusion uses the information from the monitoring phase about the logged traffic from the SpeedCams. The goal of that phase is to aggregate the traffic and reconstruct the flow inside the network to identify a misuse of network resources. It also feeds the results back to the graph and ends the episode.
 
-The inspector receives the measured traffic from the SpeedCams and aggregates them in such a way, that the inspector can add them to the corresponding node. After this assignment, the inspector decides, which node violated the rules. To do so, he needs to classify the users, which is described in the following:
+The inspector receives the measured traffic from the SpeedCams and aggregates them in such a way, that the inspector can add them to the corresponding node. After this assignment, the inspector decides, which node violated the rules. A violation can be punished to prevent further ones. The punishment can be a temporary or permanent reduction of the available bandwidth or a banishment from the network. The work does not go into details about the punishment because it concentrates on the detection. Additional information about this topic can be found in \autoref{sec:concl:future}.
 
 The classification of the a node depends on two factors: The first one is if the inspectee violated the rule and overused its limits. The second one is if there was a \textit{congestion} inside the network, so that one node was constantly at its bandwidth limit and unable to fulfil its task. A congestion occurs when the bandwidth of a link is exact or nearly the same as the links capacity and there are packets dropped because of a buffer overflow. The resulting cases are shown in \autoref{tab:classifyUser}.
 
@@ -582,12 +582,12 @@ The classification of the a node depends on two factors: The first one is if the
 \end{table}
 
 \subsubsection{Case I - Fair} \label{sub:main:detection:case1}
-This node uses fewer bandwidth than he has subscribed to and doesn't violate the rule. There is also no congestion inside the network. In this case, there is no need to punish the user. They could use even more bandwidth, because the network is currently underutilized and possible bandwidth is wasted.
+This node uses fewer bandwidth than it has subscribed to and doesn't violate the rule. There is also no congestion inside the network. In this case, there is no need to punish the user. They could use even more bandwidth, because the network is currently underutilized and possible bandwidth is wasted.
 
 \subsubsection{Case II - Global greedy}
 In this case there is a congestion inside the network. The currently used bandwidth is higher than the available. But there is not any node which violated the rule. This results in a global greedy behavior of all nodes, because their cumulative task needed more resources than were available. An example is seen in \autoref{fig:main:concept:conclusion:case2}.
 
-It is possible to resolve this case for future episode by identifying the nodes with the highest bandwidth and to plea them not using so much resources. They can identified by \textit{clustering-algorithm}, such as \textit{Jenks Natural Breaks} \cite{Frenzel.1967}. This would be a type of \textit{load-balancing}, but it is in a network difficult to realize. The nodes owner maybe paid for the subscribed bandwidth and will ignore to such a plea. All in all it is only possible to identify the global greedy nodes, but it is outside this work to go into detail.
+It is theoretically possible to solve this case and by that to increase the efficiency of the network. These global greedy users can be identified using clustering-algorithms, such as \textit{Jenks Natural Breaks} \cite{Frenzel.1967}. These will partition the users by their bandwidth usage and the top user can be plead to reduce their consumption. Because they often have paid for this service, they cannot be forced to do so. In summary, it is possible to identify them, but without a defined protocol all users have agreed to it is not possible to solve this case.
 
 \begin{figure}
 	\centering
@@ -611,13 +611,13 @@ It is possible to resolve this case for future episode by identifying the nodes 
 \end{figure}
 
 \subsubsection{Case III - Overusing with no congestion}
-This case occurs when there is no congestion inside the network, but a node uses more bandwidth than allowed. For example, a node has only a bandwidth limit of 1 GBit/s but used 1.2 GBit/s at the time of the inspection. The inspectee was violating the rules but without disturbing the task of other nodes because it didn't caused a congestion. In other words it utilized the available bandwidth.
+This case occurs when there is no congestion inside the network, but a node uses more bandwidth than allowed. For example, a node has only a bandwidth limit of 1 GBit/s but used 1.2 GBit/s at the time of the inspection. The inspectee was violating the rules but without disturbing the task of other nodes because it didn't cause a congestion. In other words it utilized the available bandwidth.
 
 This case isn't simple to solve. On the one hand the node clearly violated the established limits and tried to cheat. That behavior can lead quickly to congestion when every node is doing so and should be prevent by punishment or regulation.
 
 On the other hand this utilized the available resources in a better way. This is not fair but more effective without a direct harm. Even the fact that there was bandwidth available to use implicates that the limits were not optimal and can be improved.
 
-The handling could be based on a tolerance range for overusing for example an overuse of 10\% is tolerated. As long as the user stays in this range and does not cause a congestion no punishment is necessary. To increase the fairness for other user it is possible to implement a reputation based punishment system. A greedy node's reputation would decrease of time and the lower the reputation the higher the punishment when the overuse lead to a congestion.
+The handling could be based on a tolerance range for overusing for example an overuse of 10\% is tolerated. As long as the user stays in this range and does not cause a congestion no punishment is necessary. To increase the fairness for other users it is possible to implement a reputation based punishment system. A greedy node's reputation would decrease of time and the lower the reputation the higher the punishment when the overuse lead to a congestion.
 
 When the user overuses their resources even higher than the tolerance allows to it should be handled as a Case IV and be punished.
 
@@ -629,16 +629,16 @@ When the user overuses their resources even higher than the tolerance allows to 
 \end{figure}
 
 \subsubsection{Case IV - Overuse resulted in a congestion}
-The inspectee violated the limits and caused maybe with that behaviour a congestion. This node should be punished to prevent this in future episodes.
+The inspectee violated the limits and maybe caused a congestion with that behaviour a congestion. This node should be punished to prevent this in future episodes.
 
 \subsection{Repeat} \label{sec:main:repeatphase}
 The previously described phases need to be repeated in a certain interval. As with the other phases, there are several different strategies possible.
 
 A \textit{fixed interval} with an endless repeat mode is the first one. The inspector starts the inspection every $t$ time unit and gets a constant stream of information about the network traffics. The precision of the inspection depends on the size of the interval, the smaller the interval is, the higher is the precision. But also increases/decreases the resource impact. This strategy gives also the possibility for the inspectees to recognize this pattern and adapt.
 
-A \textit{randomly chosen} time schedule prevents this problem. The inspector starts an inspection non-deterministic a few times over a given timespan, like a day or week. This decreases the precision of the measurement, because the interval changes randomly. The inspector looses the possibility to improve his selection quality by using the time profiles. This strategy can also waste the inspector resources, when the inspection is randomly chosen at a point of time with nothing happening of interest.
+A \textit{randomly chosen} time schedule prevents this problem. The inspector starts an inspection non-deterministically a few times over a given timespan, like a day or week. This decreases the precision of the measurement, because the interval changes randomly. The inspector loses the possibility to improve its selection quality by using the time profiles. This strategy can also waste the inspector resources, when the inspection is randomly chosen at a point of time with nothing happening of interest.
 
-Another strategy is to utilize the knowledge of past episodes and the course of the traffic over a day. The inspector can check, if there are timestamps when the the traffic is usually high, for example in the evening for consumer as seen in \autoref{fig:main:decixData2Days}. This strategy is \textit{experiences based} and has the same advantages and issues as the \textbf{activity} criteria from \autoref{sec:main:selectionPhase:criteria}. A longer history enables more precise decision, but a too long history can hold outdated information. Also is a purely experienced based strategy vulnerable to get stuck in a local optima. This convergence can be avoided by using a chance to pick a non optimal timestamp to learn something new.
+Another strategy is to utilize the knowledge of past episodes and the course of the traffic over a day. The inspector can check, if there are timestamps when the traffic is usually high, for example in the evening for consumers as seen in \autoref{fig:main:decixData2Days}. This strategy is \textit{experiences based} and has the same advantages and issues as the \textbf{activity} criteria from \autoref{sec:main:selectionPhase:criteria}. A longer history enables more precise decision, but a too long history can hold outdated information. Also is a purely experienced based strategy vulnerable to get stuck in a local optima. This convergence can be avoided by using a chance to pick a non optimal timestamp to learn something new.
 
 
 \begin{figure}
@@ -650,29 +650,29 @@ Another strategy is to utilize the knowledge of past episodes and the course of 
 \end{figure}
 
 \subsection{Summary}
-This section described the SpeedCam approach for general network and the different strategies. It is designed to work on any network, but quite so it lacks of necessary answers for questions like "Which components enables the inspector to measure traffic?" or "What protocols are necessary to exchange the monitored information?". The following section will show the example implementation in SCION and the section after especially for SCIONLab.
+This section described the SpeedCam approach for general network and the different strategies. It is designed to work on any network, but quite so it lacks of necessary answers for questions like "Which components enable the inspector to measure traffic?" or "What protocols are necessary to exchange the monitored information?". The following section will show the example implementation in SCION and the section after especially for SCIONLab.
 
 \section{Implementation in SCION} \label{sec:main:scionimpl}
 
-This section will outline the implementation of the general concept as discussed in \autoref{sec:main:generalconcept}. SCION is under heavy development and hasn't reached a long-term-support (LTS) version yet. So it is necessary to mention, that the implementation was done with the version  24d2e97909599bf35dcbf6308aa2302610cf9689 from 2018-02-07T17:03:35Z. 
+This section will outline the implementation of the general concept as discussed in \autoref{sec:main:generalconcept}. SCION is under heavy development and hasn't reached a long-term-support (LTS) version yet. So it is necessary to mention, that the implementation was done with the version  {\scriptsize 24d2e97909599bf35dcbf6308aa2302610cf9689} from {\scriptsize 2018-02-07T17:03:35Z}. 
 
 \subsection{Differences}
 
 There are for this work interesting differences from the general networks to SCIONs structure. They will be shown in this part and used later for changes inside the phases. The nodes or inspectees will be now called ASes, because they are named so in SCION.
 
-The first difference is, that there are core ASes inside one ISD. They are forming the core of an ISD and provides information about its structure. An AS which wants to find a path for his data sends a path-request to a core AS. It is currently possible to log the path-server's requests. This information about active paths inside an ISD is useful for the exploration phase (\autoref{sec:main:explorationphase}), because it enables the inspector reconstruct the graph by adding all paths. There is no need to implement a graph exploring algorithm.
+The first difference is, that there are core ASes inside one ISD. They are forming the core of an ISD and provide information about its structure. An AS which wants to find a path for its data sends a path-request to a core AS. It is currently possible to log the path-server's requests. This information about active paths inside an ISD is useful for the exploration phase (\autoref{sec:main:explorationphase}), because it enables the inspector to reconstruct the graph by adding all paths. There is no need to implement a graph exploring algorithm.
 
-Based on that difference, the Core is a good place to insert the inspector. It needs to has access to the ISD and its structure and this is one of the tasks of the core. It would also be the place to enforce the policy, that the member of that ISD can be monitored and eventually be punished. 
+Based on that difference, the Core is a good place to insert the inspector. It needs to have access to the ISD and its structure and this is one of the tasks of the core. It would also be the place to enforce the policy, that the member of that ISD can be monitored and eventually be punished. 
 
-Another useful difference is that an AS creates a new border router instance for each new link. Each instance collects the traffic metrics with the library Prometheus and provides them with a simple HTTP based protocol. The URL for the call can be bind to an open and externally accessible network interface. This fact simplifies the necessary implementation for the monitoring phase (\autoref{sec:main:monitoringphase}). It is also enables the resolution of link-based traffic, because each border router is responsible for one link. The work of Foster\cite{Forster.September2017} would count the bandwidth efficiently with a very small footprint, but until the used version his changes were not merged. 
+Another useful difference is that an AS creates a new border router instance for each new link. Each instance collects the traffic metrics with the library Prometheus and provides them with a simple HTTP based protocol. The URL for the call can be bound to an open and externally accessible network interface. This fact simplifies the necessary implementation for the monitoring phase (\autoref{sec:main:monitoringphase}). It also enables the resolution of link-based traffic, because each border router is responsible for one link. The work of Foster\cite{Forster.September2017} would count the bandwidth efficiently with a very small footprint, but until the used version his changes were not merged. 
 
-The structure of SCION with ISD gives the possibility to split the responsibility for the inspection into multiple region, for example one inspector for each ISD. This will improve the scalability of the Inspector, but implementing it as a decentralized component would go beyond the scope of this work.
+The structure of SCION with ISD gives the possibility to split the responsibility for the inspection into multiple regions, for example one inspector for each ISD. This will improve the scalability of the Inspector, but implementing it as a decentralized component would go beyond the scope of this work.
 
 The next section will give an overview about the implementation using SCION as its network.
 
 \section{Implementation in SCIONLab} \label{sec:main:scionlabimpl}
 
-The implementation\footnote{\url{https://github.com/Meldanor/SCIONLab_SpeedCam}, 05.04.2018} was mostly written in Go\footnote{\url{https://golang.org}, 05.04.2018} 1.9. SCION itself and most of its component are written in Go and because of that is made sense to also write the implementation in Go. The amount of components very specific to Go is limited and was written in an object-oriented way to be portable to other programming languages. It also uses as few SCION dependencies as possible to be lightweight and flexible to use. The implementation is sufficient enough for this work and should not be used in its current state in a production environment, but it can be used as a base for a production ready application. The documentation for this program can be found in the README.md of the project as also in \autoref{app:usage}
+The implementation\footnote{\url{https://github.com/Meldanor/SCIONLab_SpeedCam}, 05.04.2018} was mostly written in Go\footnote{\url{https://golang.org}, 05.04.2018} 1.9. SCION itself and most of its components are written in Go and because of that it made sense to also write the implementation in Go. The amount of components very specific to Go is limited and was written in an object-oriented way to be portable to other programming languages. It also uses as few SCION dependencies as possible to be lightweight and flexible to use. The implementation is sufficient enough for this work and should not be used in its current state in a production environment, but it can be used as a base for a production ready application. The documentation for this program can be found in the README.md of the project as also in \autoref{app:usage}
 
 An overview about the communication between the implemented components and their corresponding phases is given as an UML communication diagram in \autoref{fig:main:impl:phasescommunication}. Each phase and its specific communication is numbered, starting with 0 for the exploration phase. This phase is completely executed in the background. The other phases, methods starting with 1, 2 and 3 are run in sequence. In the following of this part, each method will be explained in detail and any difference from the concept, if existing, is mentioned.
 
