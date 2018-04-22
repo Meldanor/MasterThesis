@@ -2,5 +2,9 @@
 \begin{document}
 
 \addchap{Abstract}
-The Internet in its current state does not provide the possibility to use multiple paths for the same communication nor does the end-host have control over the chosen path. SCION \cite{SCIONBook, SCIONPaper} does provide solutions but lacks of an efficient mechanism to monitor the networks traffic and identify an overuse of resources. This works provides a scalable solution for networks in general to do so based on a heuristic to place probes, called SpeedCams. The work does provide an implementation for SCION and its testbed SCIONLab and the evaluation was based on it. It shows that a hit rate of 80\% and better can be achieved with only few nodes such as 10\% of the network.
+This thesis presents a heuristic based mechanism to efficiently monitor traffic inside a network especially for multi-path communication in SCION. The goal is to detect user overusing their resources such as bandwidth and cause congestion in the network. 
+
+The requirements for the solution were a high detection rate with a low impact on the performance. Based on this, it should also be able to scale with hundreds of nodes. This was achieved by using a heuristic for the selection of probes and only using a partition of the network, 10\% or fewer.
+
+A concept for networks in general was proposed and implemented in SCION. The evaluation for it was done in SCIONLab over the course of 48 hours. It was shown that the solution reached the goals.
 \end{document}
