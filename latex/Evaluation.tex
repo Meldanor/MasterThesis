@@ -14,7 +14,7 @@ The inspector program is running on the same machine as the SCPB, while the scri
 \begin{figure}
 	\centering
 	\includegraphics[width=.9\linewidth]{scionLabTopology.pdf}
-	\caption{Part of SCIONLab topology}
+	\caption{Selection result of one episode of \textit{Linear02}. The red circles are SpeedCams.}
 	\label{fig:eva:scionLabTopo}
 \end{figure}
 
@@ -31,7 +31,7 @@ The experiment was ran on the SCIONLab network over 48 hours and ran multiple co
 	# \textit{Experience} uses the strategy of using past inspections to predict the next one. \textit{Experience12} uses twice as much episodes (total of 12) and \textit{Experience03} uses half as much with a total of only 3 episodes. The experience strategy starts with the random strategy until there are 5 data points.		
 \end{easylist}
 
-Each instance writes the result of an inspection to a .JSON file containing the complete network graph with past episodes and also the result of the inspection run. 
+Each instance writes the result of an inspection to a JSON-file containing the complete network graph with past episodes and also the result of the inspection run. 
 
 A Prometheus server is additionally running to provide a baseline of the measured traffic inside the network. This instance fetch data from all border routers in an interval of 15 seconds. The difference to the inspector is that the Prometheus server fetches always the metrics. The data will be used to calculate the precision of the monitored data with \autoref{equo:qualitySelection}, where $\text{traffic}(N)$ is equals to the Prometheus server data. 
 
@@ -72,6 +72,17 @@ One problem with the evaluation was to have only a partition of ASes with an acc
 	\label{fig:eva:nodesRatio}
 \end{figure}
 
+\subsection{Selection heuristic} \label{sec:eva:selectionHeuristic}
+
+The result of a single selection can be seen in \autoref{fig:eva:scionLabTopo} and its zoomed \autoref{fig:eva:scionLabTopoZoomed}. The red circles are the SpeedCams and it is shown in the figures that the inspector prefers the Core ASes. They are having a high degree but also a high bandwidth usage, because every inter-ISD traffic is routed by them. 
+
+\begin{figure}
+	\centering
+	\includegraphics[trim={55mm 43mm 98mm 49mm},clip,width=.6\linewidth]{scionLabTopology.pdf}
+	\caption{Zoomed version of \autoref{fig:eva:scionLabTopo}}
+	\label{fig:eva:scionLabTopoZoomed}
+\end{figure}
+
 \subsection{Precision} \label{sec:eva:precision}
 
 The precision is the proportion of the real traffic by Prometheus to the monitored by the inspector. The higher the precision is, the better is the inspection. It is split into the monitored input and output traffic and shown in separate graphs. The results are in percentage in \autoref{fig:eva:precisionPercent} where higher is better, but also in total difference in \autoref{fig:eva:precisionTotal} where lower is better.
@@ -80,7 +91,7 @@ Surprisingly the precision for the experience based strategies are zero in avera
 
 The other strategies are using an interval of 10 seconds between an inspection and vary in their amount of utilized SpeedCams. \textit{Const} brings the worst results with a coverage of 10-20\%, but this is impressive for using only one node. It selected the core ASes \textit{1-14} 1564 times, \textit{3-31} 1019 times, \textit{4-41} 541 times and \textit{2-21} 381 times. Each of them is connected with the other ISDs and have high traffic, which is why there are selected so often. The \textit{Const} strategy uses only 1 of 96 nodes to measure the traffic with a precision of 20\%.
 
-The \textit{Log} uses only one to two nodes more with an increase of 10\% points. A very similar picture is given by the \textit{Linear01} scaling that happens because of the previously described problem with only 21 usable probes in the network. For that small number the scales differ only in on or two nodes. The other linear scales achieve a higher precision by using more nodes. Interesting is \textit{Fixed} and the linear configuration were able to monitor sometimes about 90 to 100\% of the network with a very small amount of nodes. The reason for that phenomena is that the selection consisted of very good probe points for the current flow. But this happened too few to be statistically relevant and should not be relied onto.
+The \textit{Log} uses only one to two nodes more with an increase of 10\% points. A very similar picture is given by the \textit{Linear01} scaling that happens because of the previously described problem with only 21 usable probes in the network. For that small number the scales differ only in on or two nodes. The other linear scales achieve a higher precision by using more nodes. Interesting is \textit{Fixed} and the linear configuration were able to monitor sometimes about 90 to 100\% of the network with a very small amount of nodes. The reason for that phenomena is that the selection consisted of very good probe points as shown in \autoref{sec:eva:selectionHeuristic}.
 
 The same results can be viewed with the total difference in bytes per second in \autoref{fig:eva:precisionTotal}.
 
