@@ -20,7 +20,9 @@ The inspector program is running on the same machine as the SCPB, while the scri
 
 \section{Experiment}
 
-The experiment was ran on the SCIONLab network over 48 hours and ran multiple configurations of the SpeedCam program simultaneously. The script and the start parameters can be found in \autoref{app:config} and differ from the standard configuration in its each instance. The standard weights all criteria equally with 1, start an inspection every 10 seconds and uses 20\% of the network nodes. They were set intuitively while developing the software and serve as a baseline. This configuration used a history of six episodes for each node. The other configurations are:
+The experiment was ran on the SCIONLab network over 48 hours and ran multiple configurations of the SpeedCam program simultaneously. The script and the start parameters can be found in \autoref{app:config} and differ from the standard configuration in its each instance. The standard weights all criteria equally with 1, start an inspection every 10 seconds and uses 20\% of the network nodes. They were set intuitively while developing the software and serve as a baseline. This configuration used a history of six episodes for each node.
+
+The other configurations are:
 
 \begin{easylist}
 	\MyListProperties
@@ -44,26 +46,26 @@ This part will list the results of the previously described configuration. \auto
 
 The figure even gives a good impression of the results and the influence of the configuration. The best configuration, \textit{Linear033}, monitored only about 50\% of the total traffic, while random based strategies as the \textit{experience} ones has the worst coverage. This will be discussed in detail in \autoref{sec:eva:precision}.
 
-\begin{figure}[h]
+One problem with the evaluation was to have only a partition of ASes with an accessible Prometheus client interface. The ratio is shown in \autoref{fig:eva:nodesRatio}. It displays the average amount of ASes the configuration has discovered, the candidates which has such an open client interface and the used SpeedCams per episode. \textit{Random} has the lowest with 54 ASes, while \textit{Fixed} has nearly twice that much of 102 ASes discovered. The reason for this is that \textit{Random} has very few inspections and has a small chance to react to changes of the network. Additionally, new ASes were not only discovered when the path requests contained them, but also when a SpeedCam returns a border router result with an unknown AS. This happened a lot for the attachment point of the virtual machines, AS 1-17. While this did not have an influence on the candidates it will have one with an improved possibility to monitor traffic. One example would be a possibility without knowing the border router's URL. Details will be listed in \autoref{chap:concl}.
+
+\begin{figure}[!h]
 	\centering
 	\begin{subfigure}{.8\linewidth}
 		\centering
-		\includegraphics[width=0.98\textwidth]{monitoredTraffic_input.pdf}
+		\includegraphics[width=1\textwidth]{monitoredTraffic_input.pdf}
 		\caption{Input}
 		\label{fig:eva:monitoredTraffic:input}
 	\end{subfigure}
 	\hfill
-	\begin{subfigure}{0.8\linewidth}
+	\begin{subfigure}{.8\linewidth}
 		\centering
-		\includegraphics[width=0.98\textwidth]{monitoredTraffic_output.pdf}
+		\includegraphics[width=1\textwidth]{monitoredTraffic_output.pdf}
 		\caption{Output}
 		\label{fig:eva:monitoredTraffic:output}
 	\end{subfigure}
 	\caption{Monitored bandwidth in bytes per second over the experiment time. Down sampled from 15 seconds to 1 hour.}
 	\label{fig:eva:monitoredTraffic}
 \end{figure}
-
-One problem with the evaluation was to have only a partition of ASes with an accessible Prometheus client interface. The ratio is shown in \autoref{fig:eva:nodesRatio}. It displays the average amount of ASes the configuration has discovered, the candidates which has such an open client interface and the used SpeedCams per episode. \textit{Random} has the lowest with 54 ASes, while \textit{Fixed} has nearly twice that much of 102 ASes discovered. The reason for this is that \textit{Random} has very few inspections and has a small chance to react to changes of the network. Additionally, new ASes were not only discovered when the path requests contained them, but also when a SpeedCam returns a border router result with an unknown AS. This happened a lot for the attachment point of the virtual machines, AS 1-17. While this did not have an influence on the candidates it will have one with an improved possibility to monitor traffic. One example would be a possibility without knowing the border router's URL. Details will be listed in \autoref{chap:concl}.
 
 \begin{figure}[h]
 	\centering
@@ -145,25 +147,25 @@ The hit rate increased when extending the acceptance range. Instead of an exact 
 Finally, the hit rate increases even further by extending the range by another 1. The linear configurations are now guessing the correct AS in 95\% of the time. This means, that the inspector with an interval of 10s and an amount of 2-6 probes in a network of about 100 ASes had identified the correct top three bandwidth user. Even using only one probe as seen in \textit{const} results in a high hit rate with that wide range.
 
 All in all, it can be assumed that the hit rate depends primarily on a small inspection interval and secondarily on the amount of used probes.
-\begin{figure}
+\begin{figure}[!h]
 	\centering
-	\begin{subfigure}{0.8\linewidth}
+	\begin{subfigure}{0.9\linewidth}
 		\centering
-		\includegraphics[width=0.95\textwidth]{hitrateDist0.pdf}
+		\includegraphics[width=\textwidth]{hitrateDist0.pdf}
 		\caption{Distance 0 - Exact hit}
 		\label{fig:eva:hitrate:0}
 	\end{subfigure}
 	\hfill
-	\begin{subfigure}{0.8\linewidth}
+	\begin{subfigure}{0.9\linewidth}
 		\centering
-		\includegraphics[width=0.95\textwidth]{hitrateDist1.pdf}
+		\includegraphics[width=\textwidth]{hitrateDist1.pdf}
 		\caption{Distance 1 - 1st or 2nd}
 		\label{fig:eva:hitrate:1}
 	\end{subfigure}
 	\hfill	
-	\begin{subfigure}{0.8\linewidth}
+	\begin{subfigure}{0.9\linewidth}
 		\centering
-		\includegraphics[width=0.95\textwidth]{hitrateDist2.pdf}
+		\includegraphics[width=\textwidth]{hitrateDist2.pdf}
 		\caption{Distance 2 - 1st, 2nd or 3rd}
 		\label{fig:eva:hitrate:2}
 	\end{subfigure}
@@ -176,21 +178,21 @@ All in all, it can be assumed that the hit rate depends primarily on a small ins
 
 The performance impact of SpeedCam on the system is minimal as seen in \autoref{fig:eva:performance}. Without the outliers, no configuration uses more than 1\% of the CPUs computation time and uses in average fewer than 0.5\%. The main impact of the CPU is the amount of utilized SpeedCams as seen in the linear configuration. The more SpeedCams existing, the more candidate scores needs to be calculated and the more monitoring results needs to get parsed. The random and the experience based configuration uses the fewest CPU in average, because most of the time they are sleeping and do not utilize the CPU.
 
-The memory impact has a similar image as seen in \autoref{fig:eva:performance:mem}. No configuration needed more than 1.5\% of the memory. The amount of episodes per node has little to zero influence of the memory as seen for the experience configuration. A higher influence is the amount of used SpeedCams as seen for the \textit{const} configuration with always 1 SpeedCam, which uses nearly constant 1.1\% of the memory.
+The memory impact has a similar image as seen in \autoref{fig:eva:performance:mem}. No configuration needed more than 1.5\% of the memory. The amount of episodes per node has little to zero influence of the memory as seen for the experience configuration. A higher influence is the amount of used SpeedCams as seen for the \textit{Const} configuration with always 1 SpeedCam, which uses nearly constant 1.1\% of the memory.
 
-All in all has no configuration a significant impact on the systems performance for the SCIONLab network. The goal was to use 5\% or fewer resources, which was achieved.
-\begin{figure}
+All in all has no configuration a significant impact on the systems performance for the SCIONLab network, which was a goal of this thesis.
+\begin{figure}[!h]
 	\centering
-	\begin{subfigure}{0.8\linewidth}
+	\begin{subfigure}{.85\linewidth}
 		\centering
-		\includegraphics[trim={0mm 100mm 0mm 0mm},clip,width=0.98\textwidth]{performance_diagrams.pdf}
+		\includegraphics[trim={0mm 100mm 0mm 0mm},clip,width=\textwidth]{performance_diagrams.pdf}
 		\caption{CPU usage in \%}
 		\label{fig:eva:performance:cpu}
 	\end{subfigure}
 	\hfill
-	\begin{subfigure}{0.8\linewidth}
+	\begin{subfigure}{.85\linewidth}
 		\centering
-		\includegraphics[trim={0mm 0mm 0mm 100mm},clip,width=0.98\textwidth]{performance_diagrams.pdf}
+		\includegraphics[trim={0mm 0mm 0mm 100mm},clip,width=\textwidth]{performance_diagrams.pdf}
 		\caption{Memory usage in \%}
 		\label{fig:eva:performance:mem}
 	\end{subfigure}

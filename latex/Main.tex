@@ -41,7 +41,7 @@ One run of the SpeedCam approach is called an \textit{episode} and is broken dow
 
 \begin{figure}[!h]
 	\centering
-	\includegraphics[trim=5mm 1mm 0mm 1mm, clip, width=0.95\textwidth]{umldiagram_phasesOrder.pdf}
+	\includegraphics[trim=5mm 1mm 0mm 1mm, clip, width=0.9\textwidth]{umldiagram_phasesOrder.pdf}
 	\caption{SpeedCam's phases}
 	\label{fig:main:phasesOrder}
 \end{figure}
@@ -105,7 +105,7 @@ The following presented criteria are considered \textbf{static} and can be calcu
 Storing the timespan for an episode gives the possibility to create a profile for a node to be used by the selection process. The selection itself can now be time based. A node with a high activity in the morning can receive a higher candidate score than a node with a high activity in the evening. This can increase the quality of the set.
 
 The meaningfulness of this criterion depends of the length on the history. A short history maybe represents an inaccurate result of the node, while a long history can hold outdated information about the behavior of that node.
-
+\vspace{5cm}
 \subsubsection{Candidate score}
 
 The score for each node is calculated as the following:
@@ -555,7 +555,7 @@ A higher resolution of the monitoring is achievable by also looking at a packets
 
 The choice of resolution is based on the amount of available computation power and the provided information of the network. The current Internet is currently structured according to the OSI-Lay model \cite{Partridge.1988}, which defines responsibilities and data models for each layer. Each layer has only a limited access to the data of a packet to provide a comparability with each other. That limits the possibilities of the inspector's options based on where he is placed.
 
-The results of the SpeedCams are sent to the inspector and will be processed by it in the next phase, the conclusion.
+These results are sent to the inspector and processed in the conclusion phase.
 
 \subsection{Conclusion} \label{sec:main:conclusionphase}
 The conclusion uses the information from the monitoring phase about the logged traffic from the SpeedCams. The goal of that phase is to aggregate the traffic and reconstruct the flow inside the network to identify a misuse of network resources. It also feeds the results back to the graph and ends the episode.
@@ -563,8 +563,7 @@ The conclusion uses the information from the monitoring phase about the logged t
 The inspector receives the measured traffic from the SpeedCams and aggregates them in such a way, that the inspector can add them to the corresponding node. After this assignment, the inspector decides, which node violated the rules. A violation can be punished to prevent further ones. The punishment can be a temporary or permanent reduction of the available bandwidth or a banishment from the network. The work does not go into details about the punishment because it concentrates on the detection. Additional information about this topic can be found in \autoref{sec:concl:future}.
 
 The classification of the a node depends on two factors: The first one is if the inspectee violated the rule and overused its limits. The second one is if there was a \textit{congestion} inside the network, so that one node was constantly at its bandwidth limit and unable to fulfil its task. A congestion occurs when the bandwidth of a link is exact or nearly the same as the links capacity and there are packets dropped because of a buffer overflow. The resulting cases are shown in \autoref{tab:classifyUser}.
-
-\begin{table}[h]
+\begin{table}[!h]
     \centering
     \begin{tabular}{ r|c|c| }
         \multicolumn{1}{r}{}
@@ -576,7 +575,7 @@ The classification of the a node depends on two factors: The first one is if the
         overuses limit & III & IV \\
         \cline{2-3}
     \end{tabular}
-    \caption{Classification of a node}
+    \caption{Different classifications of a node}
     \label{tab:classifyUser}    
 \end{table}
 
@@ -588,7 +587,7 @@ In this case there is a congestion inside the network. The currently used bandwi
 
 It is theoretically possible to solve this case and by that to increase the efficiency of the network. These global greedy users can be identified using clustering-algorithms, such as \textit{Jenks Natural Breaks} \cite{Frenzel.1967}. These will partition the users by their bandwidth usage and the top user can be plead to reduce their consumption. Because they often have paid for this service, they cannot be forced to do so. In summary, it is possible to identify them, but without a defined protocol all users have agreed to it is not possible to solve this case.
 
-\begin{figure}
+\begin{figure}[!h]
 	\centering
 	\begin{tikzpicture}
 	\tikzstyle{AS}=[circle,draw=black,scale=1]
@@ -620,7 +619,7 @@ The handling could be based on a tolerance range for overusing for example an ov
 
 When the user overuses their resources even higher than the tolerance allows to it should be handled as a Case IV and be punished.
 
-\begin{figure}
+\begin{figure}[h]
 	\centering
 	\includegraphics[height=0.2\textheight]{overuseTolerance.pdf}
 	\caption{Example for a Case III user (blue). It exceeds its limit (orange) but stays in the tolerance (gray) range.}
@@ -629,7 +628,7 @@ When the user overuses their resources even higher than the tolerance allows to 
 
 \subsubsection{Case IV - Overuse resulted in a congestion}
 The inspectee violated the limits and maybe caused a congestion with that behaviour a congestion. This node should be punished to prevent this in future episodes.
-
+\newpage
 \subsection{Repeat} \label{sec:main:repeatphase}
 The previously described phases need to be repeated in a certain interval. As with the other phases, there are several different strategies possible.
 
@@ -639,8 +638,7 @@ A \textit{randomly chosen} time schedule prevents this problem. The inspector st
 
 Another strategy is to utilize the knowledge of past episodes and the course of the traffic over a day. The inspector can check, if there are timestamps when the traffic is usually high, for example in the evening for consumers as seen in \autoref{fig:main:decixData2Days}. This strategy is \textit{experiences based} and has the same advantages and issues as the \textbf{activity} criteria from \autoref{sec:main:selectionPhase:criteria}. A longer history enables more precise decision, but a too long history can hold outdated information. Also is a purely experienced based strategy vulnerable to get stuck in a local optima. This convergence can be avoided by using a chance to pick a non optimal timestamp to learn something new.
 
-
-\begin{figure}
+\begin{figure} [h]
 	\centering
 	\includegraphics[height=0.2\textheight]{traffic_FRA-2days-1170-400}
 	\caption*{\tiny{ \url{https://www.de-cix.net/en/locations/germany/frankfurt/statistics} (20.04.2017)}}
