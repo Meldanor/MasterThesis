@@ -1,8 +1,18 @@
 # SpeedCam: Efficient Detection of Multi-path Resource Overuse in SCIONLab SCIONLab
 
-This is my master thesis with the title above. Thank you Andreas Reich, you are awesome. I will leave the original readme.md content here, but modified header level.
+This is my master thesis with the title above. Thank you Andreas Reich for the [template](https://github.com/Wumpf/thesis_latex_template), you are awesome. I will leave the original readme.md content here, but modified header level and the license paragraph to avoid confusion.
 
-## Original
+## Topic
+The SpeedCam is about identifing malicious user inside a network which is capable of multi-path communication.
+
+The [implementation](https://github.com/Meldanor/SCIONLab_SpeedCam) of this thesis is written in Go and was used for the evaluation.
+
+## License
+Creative commons in public domain. Use it for the advantage of the human race.
+
+![Public Domain Logo](https://licensebuttons.net/p/zero/1.0/88x31.png)
+
+## Original README by Wumpf
 This is what worked on my university (Magdeburg). You almost certainly need something like this, but it may very well look completely different.
 
 #### Tools of my Choice
@@ -17,7 +27,7 @@ A language highlighting definition for glsl code blocks. Left it in there becaus
 #### Why \subfile and not XY?
 \subfile has the amazing advantage that you can compile parts of the thesis interpedently. Once you get more images in this increases your improves time tremendously!
 
-### Licensing
-It's public domain, so do what you want with it! Of course I'd be happy if you give my github repository a star or even mention me in your thesis' acknowledgements ;-)
 
-![Public Domain Logo](https://licensebuttons.net/p/zero/1.0/88x31.png)
+
+
+
